@@ -1,0 +1,45 @@
+Pasos para configurar el django
+	1-Instalar django
+		pip install django
+	2-Crear el proyecto(En la ubicacion deseada)
+		django-admin start project mi_proyecto
+	3-Ejecutar para verificar
+		python manage.py runserver
+		acceder: http://127.0.0.1:8000/
+	4-Crear la aplicacion dentro del proyecto
+		python manage.py startapp mi_app
+	5-Agregar la app a los settings del proyecto
+		INSTALLED_APPS = [
+    			...
+    			'mi_app',
+		]
+	6-Crear la migracion y la base de datos inicial
+		python manage.py migrate
+	7-Crear un super usuario
+		python manage.py createsuperuser
+	8-Ejecuttar el servidor y acceder al panel de admin
+		python manage.py runserver
+		ir a: http//127.0.0.1:8000/admin
+
+Para conectar django con postgre
+	1-Instalar el conctor a postgre
+		pip install psycopg2-binary
+	2-Configurar la base de datos del proyecto en settings.py
+		DATABASES = {
+    			'default': {
+       			'ENGINE': 'django.db.backends.postgresql',
+        		'NAME': 'BD_name',
+        		'USER': 'usuario',
+        		'PASSWORD': 'pass',
+        		'HOST': 'localhost',  # o la IP del servidor
+        		'PORT': '5432',
+    			}
+		}
+	3-Aplicar las migraciones
+		python manage.py migrate
+	4-Verificar la conexion(Se crea un modelo)
+		Ya que la bd ya estaba conectada genere los modelos en base a 		la bd
+		python manage.py inspectdb > models.py
+	5-ejecutamos el servidor
+		python manage.py runserver
+
