@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mi_app'
+    'Empleado',
+    'nomina'
 ]
 
 MIDDLEWARE = [
@@ -55,8 +56,11 @@ ROOT_URLCONF = 'nomina.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [
+            # Si tienes plantillas globales, puedes definir una carpeta templates a nivel de proyecto
+            BASE_DIR / "templates",  # Opcional, si tienes plantillas fuera de las apps
+        ],
+        'APP_DIRS': True,  # Esto asegura que Django busque plantillas dentro de las apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -79,9 +83,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Nomina',
         'USER': 'postgres',
-        'PASSWORD': '0000',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',  # o la IP del servidor
         'PORT': '5432',
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
 
@@ -108,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'es-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'UTC'
 
