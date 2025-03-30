@@ -4,9 +4,8 @@
 │   ├── settings.py
 │   └── ...
 ├── empleados/             # CRUD de empleados, historial, carga masiva
-├── contratos/             # Gestión de contratos, cargos 
+├── contratos/             # Gestión de contratos, cargos
 ├── conceptos/             # Bonificaciones, descuentos, aportes, reglas de IPS
 ├── liquidaciones/         # Lógica de cálculo de sueldos y generación de recibos
 ├── reportes/              # Dashboards, exportaciones, PDF/Excel
-
-    
+├── usuarios/             # Manejo de usuarios, autenticación, roles, permisos
