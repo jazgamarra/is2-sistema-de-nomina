@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mi_app'
+    'Empleado',
+    'nomina'
 ]
 
 MIDDLEWARE = [
@@ -55,8 +56,11 @@ ROOT_URLCONF = 'nomina.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [
+            # Si tienes plantillas globales, puedes definir una carpeta templates a nivel de proyecto
+            BASE_DIR / "templates",  # Opcional, si tienes plantillas fuera de las apps
+        ],
+        'APP_DIRS': True,  # Esto asegura que Django busque plantillas dentro de las apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

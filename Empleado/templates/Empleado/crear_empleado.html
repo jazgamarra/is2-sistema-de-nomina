@@ -1,0 +1,7 @@
+<!-- empleados/templates/empleados/crear_empleado.html -->
+<h1>Crear Nuevo Empleado</h1>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>

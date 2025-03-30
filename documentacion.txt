@@ -7,11 +7,11 @@ Pasos para configurar el django
 		python manage.py runserver
 		acceder: http://127.0.0.1:8000/
 	4-Crear la aplicacion dentro del proyecto
-		python manage.py startapp mi_app
+		python manage.py startapp empleados
 	5-Agregar la app a los settings del proyecto
 		INSTALLED_APPS = [
     			...
-    			'mi_app',
+    			'empleados',
 		]
 	6-Crear la migracion y la base de datos inicial
 		python manage.py migrate
