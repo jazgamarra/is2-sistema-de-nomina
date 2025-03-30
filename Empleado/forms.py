@@ -4,7 +4,7 @@ from nomina.models import Empleado, Departamento, Contrato
 class EmpleadoForm(forms.ModelForm):
     class Meta:
         model = Empleado
-        fields = ['id_departamento', 'id_contrato', 'nombres', 'apellidos', 'cedula', 'fecha_nacimiento', 'telefono', 'email', 'fecha_ingreso', 'activo']
+        fields = ['id_departamento', 'id_cargo', 'nombres', 'apellidos', 'cedula', 'fecha_nacimiento', 'telefono', 'email', 'fecha_ingreso', 'activo']
 
         widgets = {
             'nombres': forms.TextInput(attrs={
@@ -43,7 +43,7 @@ class EmpleadoForm(forms.ModelForm):
             'id_departamento': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'id_contrato': forms.Select(attrs={
+            'id_cargo': forms.Select(attrs={
                 'class': 'form-control'
             }),
         }

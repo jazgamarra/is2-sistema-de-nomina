@@ -38,7 +38,7 @@ Para conectar django con postgre
 	3-Aplicar las migraciones
 		python manage.py migrate
 	4-Verificar la conexion(Se crea un modelo)
-		Ya que la bd ya estaba conectada genere los modelos en base a 		la bd
+		Ya que la bd ya estaba conectada genere los modelos en base a la bd
 		python manage.py inspectdb > models.py
 	5-ejecutamos el servidor
 		python manage.py runserver

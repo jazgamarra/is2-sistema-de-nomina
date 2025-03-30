@@ -5,8 +5,10 @@ class Cargo(models.Model):
     nombre_cargo = models.CharField()
 
     class Meta:
-        
         db_table = 'cargo'
+
+    def __str__(self):
+        return self.nombre_cargo 
 
 
 class Concepto(models.Model):
@@ -33,23 +35,6 @@ class ConceptoLiquidacion(models.Model):
         
         db_table = 'concepto_liquidacion'
 
-
-class Contrato(models.Model):
-    id_contrato = models.IntegerField(primary_key=True)
-    id_cargo = models.ForeignKey(Cargo, models.DO_NOTHING, db_column='id_cargo', blank=True, null=True)
-    tipo_contrato = models.CharField()
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-    tiene_beneficios = models.BooleanField()
-    salario_acordado = models.DecimalField(max_digits=15, decimal_places=5)
-    contrato_activo = models.BooleanField()
-
-    def __str__(self):
-        salario = f"{int(self.salario_acordado)}" if self.salario_acordado else "No definido"
-        return f"{self.id_contrato} | {self.tipo_contrato} | {self.fecha_inicio} | {salario}" 
-    
-    class Meta:
-        db_table = 'contrato'
 
 
 class DebCredMes(models.Model):
@@ -79,7 +64,7 @@ class Departamento(models.Model):
 class Empleado(models.Model):
     id_empleado = id_empleado = models.AutoField(primary_key=True) # para que se autoincremente es asi!!!
     id_departamento = models.ForeignKey(Departamento, models.DO_NOTHING, db_column='id_departamento', blank=True, null=True)
-    id_contrato = models.ForeignKey(Contrato, models.DO_NOTHING, db_column='id_contrato', blank=True, null=True)
+    id_cargo = models.ForeignKey(Cargo, models.DO_NOTHING, db_column='id_cargo', blank=True, null=True)
     nombres = models.CharField()
     apellidos = models.CharField()
     cedula = models.IntegerField()
@@ -90,10 +75,25 @@ class Empleado(models.Model):
     activo = models.BooleanField()
 
     class Meta:
-        
         db_table = 'empleado'
 
+class Contrato(models.Model):
+    id_contrato = models.IntegerField(primary_key=True)
+    id_empleado = models.ForeignKey(Empleado, models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
+    tipo_contrato = models.CharField()
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    tiene_beneficios = models.BooleanField()
+    salario_acordado = models.DecimalField(max_digits=15, decimal_places=5)
+    contrato_activo = models.BooleanField()
 
+    def __str__(self):
+        salario = f"{int(self.salario_acordado)}" if self.salario_acordado else "No definido"
+        return f"{self.id_contrato} | {self.tipo_contrato} | {self.fecha_inicio} | {salario}" 
+    
+    class Meta:
+        db_table = 'contrato'
+        
 class HistorialEmpleado(models.Model):
     id_auditoria = models.IntegerField(primary_key=True)
     id_empleado = models.ForeignKey(Empleado, models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
