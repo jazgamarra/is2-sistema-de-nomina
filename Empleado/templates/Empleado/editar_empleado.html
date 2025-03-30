@@ -72,7 +72,12 @@
                 {% endif %}
             {% endfor %}
 
-            {% include 'boton_submit.html' with button_text="Actualizar Empleado" %}
+            <div class="d-flex justify-content-center">
+                {% url 'listar_empleados' as enlace %}
+                {% include 'boton_atras.html' with button_text="Cancelar" href=enlace %}
+
+                {% include 'boton_submit.html' with button_text="Actualizar empleado" %}
+            </div>
         </form>
     </div>
 

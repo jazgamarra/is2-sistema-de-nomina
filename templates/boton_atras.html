@@ -1,0 +1,24 @@
+<style>
+    .btn-outline-lila {
+        background-color: white;
+        color: #9c4dcc;  /* Lila */
+        border: 2px solid #9c4dcc;  /* Borde lila */
+        border-radius: 50px;  /* Redondeado */
+        margin-right: 10px;  /* Espacio a la izquierda */
+        font-size: 16px;  /* Tamaño de fuente */
+        padding: 4px 20px;  /* Espaciado interno */
+    }
+
+    .btn-outline-lila:hover {
+        background-color: #9c4dcc;
+        color: white;
+    }
+</style>
+<a href="javascript:history.back()" class="btn btn-outline-lila btn-sm">{{ button_text }}</a>
+<script>
+    // Cambiar el texto del botón al cargar la página
+    document.addEventListener("DOMContentLoaded", function() {
+        var button = document.querySelector(".btn-outline-lila");
+        button.textContent = "{{ button_text }}";
+    });
+</script>

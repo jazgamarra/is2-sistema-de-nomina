@@ -63,7 +63,21 @@
                 <label class="form-check-label" for="{{ form.activo.id_for_label }}">Activo</label>
             </div>
         
-            {% include 'boton_submit.html' with button_text="Crear Empleado" %}
+            {% for field in form %}
+                {% if field.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ field.label }}:</strong> {{ field.errors.0 }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <div class="d-flex justify-content-center">
+                {% url 'listar_empleados' as enlace %}
+                {% include 'boton_atras.html' with button_text="Cancelar" href=enlace %}
+
+                {% include 'boton_submit.html' with button_text="Crear empleado" %}
+            </div>
+            
         </form>
         
     </div>
