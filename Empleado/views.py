@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 # Vista para listar empleados
 @login_required
 def listar_empleados(request):
-    empleados = Empleado.objects.all()
+    empleados = Empleado.objects.all().order_by('-activo', 'apellidos', 'nombres')
     return render(request, 'Empleado/listar_empleados.html', {'empleados': empleados})
 
 # Vista para crear un nuevo empleado
@@ -42,3 +42,11 @@ def eliminar_empleado(request, pk):
         empleado.delete()
         return redirect('listar_empleados')
     return render(request, 'Empleado/eliminar_empleado.html', {'empleado': empleado})
+
+def eliminar_empleado(request, pk):
+    empleado = get_object_or_404(Empleado, pk=pk)
+    if request.method == 'POST':
+        empleado.activo = False
+        empleado.save()
+        return redirect('listar_empleados')
+    return render(request, 'empleado/eliminar_empleado.html', {'empleado': empleado})

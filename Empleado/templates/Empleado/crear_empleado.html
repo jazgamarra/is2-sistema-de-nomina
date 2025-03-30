@@ -14,16 +14,6 @@
             {% csrf_token %}
         
             <div class="form-group">
-                <label for="{{ form.id_departamento.id_for_label }}">Seleccionar Departamento</label>
-                {{ form.id_departamento }}
-            </div>
-        
-            <div class="form-group">
-                <label for="{{ form.id_contrato.id_for_label }}">Seleccionar Cargo</label>
-                {{ form.id_cargo }}
-            </div>
-        
-            <div class="form-group">
                 <label for="{{ form.nombres.id_for_label }}">Nombres</label>
                 {{ form.nombres }}
             </div>
@@ -51,6 +41,16 @@
             <div class="form-group">
                 <label for="{{ form.email.id_for_label }}">Email</label>
                 {{ form.email }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.id_departamento.id_for_label }}">Seleccionar Departamento</label>
+                {{ form.id_departamento }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.id_contrato.id_for_label }}">Seleccionar Cargo</label>
+                {{ form.id_cargo }}
             </div>
         
             <div class="form-group">
