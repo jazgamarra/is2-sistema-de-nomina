@@ -21,7 +21,7 @@ class Concepto(models.Model):
     descripcion = models.CharField()
     es_fijo = models.BooleanField()
     es_deb_cred = models.BooleanField()
-    porcentaje = models.DecimalField(max_digits=65535, decimal_places=65535)
+    porcentaje = models.DecimalField(max_digits=5, decimal_places=5)
     permite_cuotas = models.BooleanField()
     cant_cuotas = models.IntegerField()
 
@@ -34,7 +34,7 @@ class ConceptoLiquidacion(models.Model):
     id_liquidacion = models.ForeignKey('Liquidacion', models.DO_NOTHING, db_column='id_liquidacion', blank=True, null=True)
     id_concepto = models.ForeignKey(Concepto, models.DO_NOTHING, db_column='id_concepto', blank=True, null=True)
     id_empleado = models.ForeignKey('Empleado', models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
-    monto_concepto = models.DecimalField(max_digits=65535, decimal_places=65535)
+    monto_concepto = models.DecimalField(max_digits=20, decimal_places=5)
 
     class Meta:
         
@@ -48,7 +48,7 @@ class Contrato(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     tiene_beneficios = models.BooleanField()
-    salario_acordado = models.DecimalField(max_digits=65535, decimal_places=65535)
+    salario_acordado = models.DecimalField(max_digits=15, decimal_places=5)
     contrato_activo = models.BooleanField()
 
     class Meta:
@@ -62,7 +62,7 @@ class DebCredMes(models.Model):
     id_concepto = models.ForeignKey(Concepto, models.DO_NOTHING, db_column='id_concepto', blank=True, null=True)
     mes = models.IntegerField()
     anho = models.IntegerField()
-    monto = models.DecimalField(max_digits=65535, decimal_places=65535)
+    monto = models.DecimalField(max_digits=15, decimal_places=5)
 
     class Meta:
         
@@ -79,7 +79,7 @@ class Departamento(models.Model):
 
 
 class Empleado(models.Model):
-    id_empleado = models.IntegerField(primary_key=True)
+    id_empleado = id_empleado = models.AutoField(primary_key=True) # para que se autoincremente es asi!!!
     id_departamento = models.ForeignKey(Departamento, models.DO_NOTHING, db_column='id_departamento', blank=True, null=True)
     id_contrato = models.ForeignKey(Contrato, models.DO_NOTHING, db_column='id_contrato', blank=True, null=True)
     nombres = models.CharField()
@@ -127,9 +127,9 @@ class SaldoDescuento(models.Model):
     id_saldo_descuento = models.IntegerField(primary_key=True)
     id_empleado = models.ForeignKey(Empleado, models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
     id_concepto = models.ForeignKey(Concepto, models.DO_NOTHING, db_column='id_concepto', blank=True, null=True)
-    monto_total = models.DecimalField(max_digits=65535, decimal_places=65535)
-    monto_pendiente = models.DecimalField(max_digits=65535, decimal_places=65535)
-    monto_cuota = models.DecimalField(max_digits=65535, decimal_places=65535)
+    monto_total = models.DecimalField(max_digits=15, decimal_places=5)
+    monto_pendiente = models.DecimalField(max_digits=15, decimal_places=5)
+    monto_cuota = models.DecimalField(max_digits=15, decimal_places=5)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     estado = models.BooleanField()
