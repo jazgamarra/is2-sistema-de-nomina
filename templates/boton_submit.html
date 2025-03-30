@@ -1,0 +1,21 @@
+<!-- templates/Empleado/boton_submit.html -->
+{% load static %}
+
+<style>
+    .btn-lila {
+        background-color: #9c4dcc;
+        color: white;
+        border-radius: 50px;
+        border: none;
+    }
+
+    .btn-lila:hover {
+        background-color: #7c35b2;
+    }
+</style>
+
+{% if href %}
+    <a href="{{ href }}" class="btn {{ btn_class|default:'btn-lila' }}">{{ button_text }}</a>
+{% else %}
+    <button type="submit" class="btn {{ btn_class|default:'btn-lila' }}">{{ button_text }}</button>
+{% endif %}

@@ -1,7 +1,74 @@
-<!-- empleados/templates/empleados/editar_empleado.html -->
-<h1>Editar Empleado</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Actualizar</button>
-</form>
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Empleado</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <h1 class="text-center my-5">Editar Empleado</h1>
+
+        <form method="POST" class="col-md-6 offset-md-3">
+            {% csrf_token %}
+        
+            <div class="form-group">
+                <label for="{{ form.id_departamento.id_for_label }}">Seleccionar Departamento</label>
+                {{ form.id_departamento }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.id_contrato.id_for_label }}">Seleccionar Contrato</label>
+                {{ form.id_contrato }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.nombres.id_for_label }}">Nombres</label>
+                {{ form.nombres }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.apellidos.id_for_label }}">Apellidos</label>
+                {{ form.apellidos }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.cedula.id_for_label }}">Cédula</label>
+                {{ form.cedula }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de Nacimiento</label>
+                {{ form.fecha_nacimiento }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                {{ form.telefono }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.fecha_ingreso.id_for_label }}">Fecha de Ingreso</label>
+                {{ form.fecha_ingreso }}
+            </div>
+        
+            <div class="form-group form-check">
+                {{ form.activo }}
+                <label class="form-check-label" for="{{ form.activo.id_for_label }}">Activo</label>
+            </div>
+        
+            {% include 'boton_submit.html' with button_text="Actualizar Empleado" %}
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

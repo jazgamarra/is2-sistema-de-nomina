@@ -1,44 +1,76 @@
-<!-- Empleado/templates/Empleado/listar_empleados.html -->
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Listado de Empleados</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin-top: 50px;
+        }
+        .table thead th {
+            background-color: #9c4dcc;
+            color: white;
+            text-align: center;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
 </head>
-<body>
-    <h1>Lista de Empleados</h1>
-    <a href="{% url 'crear_empleado' %}">Crear nuevo empleado</a>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Nombres</th>
-                <th>Apellidos</th>
-                <th>Cédula</th>
-                <th>Fecha de Nacimiento</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Fecha de Ingreso</th>
-                <th>Activo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for empleado in empleados %}
-            <tr>
-                <td>{{ empleado.nombres }}</td>
-                <td>{{ empleado.apellidos }}</td>
-                <td>{{ empleado.cedula }}</td>
-                <td>{{ empleado.fecha_nacimiento }}</td>
-                <td>{{ empleado.telefono }}</td>
-                <td>{{ empleado.email }}</td>
-                <td>{{ empleado.fecha_ingreso }}</td>
-                <td>{{ empleado.activo }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8">No hay empleados registrados</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<body class="bg-light">
+    <div class="container table-container">
+        <h1 class="text-center mb-4">Listado de Empleados</h1>
+
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cédula</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Activo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in empleados %}
+                <tr>
+                    <td>{{ empleado.id_empleado }}</td>
+                    <td>{{ empleado.nombres }}</td>
+                    <td>{{ empleado.apellidos }}</td>
+                    <td>{{ empleado.cedula }}</td>
+                    <td>{{ empleado.email }}</td>
+                    <td>{{ empleado.telefono }}</td>
+                    <td>
+                        {% if empleado.activo %}
+                            <span class="badge badge-success">Sí</span>
+                        {% else %}
+                            <span class="badge badge-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_empleado' empleado.id_empleado %}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{% url 'eliminar_empleado' empleado.id_empleado %}" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No hay empleados registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center mt-4">
+            {% url 'crear_empleado' as crear_empleado_url %}
+            {% include 'boton_submit.html' with button_text="Agregar Empleado" href=crear_empleado_url %}
+                    </div>
+    </div>
 </body>
 </html>
