@@ -63,6 +63,14 @@
                 <label class="form-check-label" for="{{ form.activo.id_for_label }}">Activo</label>
             </div>
         
+            {% for field in form %}
+                {% if field.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ field.label }}:</strong> {{ field.errors.0 }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
             {% include 'boton_submit.html' with button_text="Crear Empleado" %}
         </form>
         
