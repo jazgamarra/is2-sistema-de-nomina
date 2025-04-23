@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class EmpleadoConfig(AppConfig):
+class LiquidacionConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'Empleado'
+    name = 'liquidacion'
