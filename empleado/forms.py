@@ -1,5 +1,5 @@
 from django import forms
-from nomina.models import Empleado
+from empleado.models import Empleado
 import re
 from datetime import date
 

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'empleado',
     'nomina',
     'usuarios',
+    'liquidacion'
 ]
 
 MIDDLEWARE = [
