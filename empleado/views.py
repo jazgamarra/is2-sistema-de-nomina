@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from nomina.models import Empleado  # Asegúrate de que esta ruta sea correcta según tus modelos
-from Empleado.forms import EmpleadoForm
+from empleado.forms import EmpleadoForm
 from django.contrib.auth.decorators import login_required
 
 # Vista para listar empleados

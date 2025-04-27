@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Empleado',
+    'empleado',
     'nomina',
     'usuarios',
 ]
@@ -84,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Nomina',
         'USER': 'postgres',
-        'PASSWORD': '0000',
+        'PASSWORD': '123456789',
         'HOST': 'localhost',  # o la IP del servidor
         'PORT': '5432',
         'OPTIONS': {
