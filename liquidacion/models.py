@@ -46,3 +46,4 @@ class DebCredMes(models.Model):
     class Meta:
         
         db_table = 'deb_cred_mes'
+
