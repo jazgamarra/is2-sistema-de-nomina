@@ -23,7 +23,7 @@ class Departamento(models.Model):
 class Empleado(models.Model):
     id_empleado = id_empleado = models.AutoField(primary_key=True)
     id_departamento = models.ForeignKey(Departamento, models.DO_NOTHING, db_column='id_departamento', blank=True, null=True)
-    id_cargo = models.ForeignKey(Cargo, models.DO_NOTHING, db_column='id_cargo', blank=True, null=True)
+    #id_cargo = models.ForeignKey(Cargo, models.DO_NOTHING, db_column='id_cargo', blank=True, null=True)
     nombres = models.CharField()
     apellidos = models.CharField()
     cedula = models.IntegerField()
@@ -32,6 +32,10 @@ class Empleado(models.Model):
     email = models.CharField()
     fecha_ingreso = models.DateField()
     activo = models.BooleanField()
+
+    hijos_menores_18 = models.IntegerField(default=0)
+    aplica_ips = models.BooleanField(default=True)
+
 
     class Meta:
         db_table = 'empleado'
