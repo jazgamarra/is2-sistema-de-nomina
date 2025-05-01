@@ -1,0 +1,26 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Concepto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    {% include 'header.html' %}
+    <div class="card-delete text-center">
+        <h4 class="mb-4">¿Estás seguro de que deseas eliminar el concepto?</h4>
+        <h5 class="mb-4">{{ concepto.nombre }}</h5>
+        <p><strong>Descripción:</strong> {{ concepto.descripcion }}</p>
+        <p><strong>Valor:</strong> {{ concepto.valor | floatformat:2 }}</p>
+
+        <form method="POST" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+
+        <a href="{% url 'listar_conceptos' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</body>
+</html>
