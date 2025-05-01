@@ -21,8 +21,8 @@
             </div>
         
             <div class="form-group">
-                <label for="{{ form.id_contrato.id_for_label }}">Seleccionar Contrato</label>
-                {{ form.id_contrato }}
+                <label for="{{ form.id_cargo.id_for_label }}">Seleccionar Cargo</label>
+                {{ form.id_cargo }}
             </div>
         
             <div class="form-group">
@@ -59,6 +59,18 @@
                 <label for="{{ form.fecha_ingreso.id_for_label }}">Fecha de Ingreso</label>
                 {{ form.fecha_ingreso }}
             </div>
+
+            <!-- 🔥 Nuevo campo: Hijos menores de 18 -->
+            <div class="form-group">
+                <label for="{{ form.hijos_menores_18.id_for_label }}">Cantidad de Hijos menores de 18</label>
+                {{ form.hijos_menores_18 }}
+            </div>
+
+            <!-- 🔥 Nuevo campo: Aplica IPS -->
+            <div class="form-group form-check">
+                {{ form.aplica_ips }}
+                <label class="form-check-label" for="{{ form.aplica_ips.id_for_label }}">¿Aplica IPS?</label>
+            </div>
         
             <div class="form-group form-check">
                 {{ form.activo }}
@@ -76,7 +88,7 @@
             <div class="d-flex justify-content-center">
                 {% url 'listar_empleados' as enlace %}
                 {% include 'boton_atras.html' with button_text="Cancelar" href=enlace %}
-
+                
                 {% include 'boton_submit.html' with button_text="Actualizar empleado" %}
             </div>
         </form>

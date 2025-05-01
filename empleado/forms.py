@@ -6,7 +6,20 @@ from datetime import date
 class EmpleadoForm(forms.ModelForm):
     class Meta:
         model = Empleado
-        fields = ['id_departamento', 'id_cargo', 'nombres', 'apellidos', 'cedula', 'fecha_nacimiento', 'telefono', 'email', 'fecha_ingreso', 'activo']
+        fields = [
+            'id_departamento',
+            #'id_cargo',   # En tu base ya no está, pero si querés que siga saliendo para elegir, lo dejamos.
+            'nombres',
+            'apellidos',
+            'cedula',
+            'fecha_nacimiento',
+            'telefono',
+            'email',
+            'fecha_ingreso',
+            'activo',
+            'hijos_menores_18',  # 🔥 Nuevo
+            'aplica_ips',        # 🔥 Nuevo
+        ]
 
         widgets = {
             'nombres': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese los nombres'}),
@@ -19,6 +32,8 @@ class EmpleadoForm(forms.ModelForm):
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'id_departamento': forms.Select(attrs={'class': 'form-control'}),
             'id_cargo': forms.Select(attrs={'class': 'form-control'}),
+            'hijos_menores_18': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad de hijos menores de 18'}),
+            'aplica_ips': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     # 🚨 Validar nombres y apellidos (evitar inyección SQL y caracteres extraños)
