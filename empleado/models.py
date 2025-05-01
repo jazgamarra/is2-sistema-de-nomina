@@ -36,6 +36,9 @@ class Empleado(models.Model):
     hijos_menores_18 = models.IntegerField(default=0)
     aplica_ips = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"{self.nombres} {self.apellidos}"  # Esto mostrará el nombre completo del empleado
+
 
     class Meta:
         db_table = 'empleado'
