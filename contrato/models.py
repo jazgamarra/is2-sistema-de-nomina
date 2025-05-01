@@ -2,7 +2,7 @@ from django.db import models
 
 class Contrato(models.Model):
     id_contrato = models.AutoField(primary_key=True)  # ID único para cada contrato
-    id_empleado = models.ForeignKey('Empleado', on_delete=models.CASCADE, related_name='contratos')  # Relación con el modelo Empleado
+    id_empleado = models.ForeignKey('empleado.Empleado', on_delete=models.CASCADE, related_name='contrato')  # Usamos la referencia de la app y modelo como cadena
     tipo_contrato = models.CharField(max_length=100)  # Tipo de contrato (por ejemplo, indefinido, temporal)
     salario = models.DecimalField(max_digits=10, decimal_places=2)  # Salario asignado al contrato
     salario_acordado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Salario acordado (si es diferente al salario base)
@@ -22,4 +22,4 @@ class Contrato(models.Model):
         ordering = ['-contrato_activo', 'fecha_inicio']  # Orden por contrato activo y fecha de inicio
 
     def __str__(self):
-        return f"Contrato {self.id_contrato} - {self.tipo_contrato} ({self.id_empleado.nombres} {self.id_empleado.apellidos})" 
+        return f"Contrato {self.id_contrato} - {self.tipo_contrato} ({self.id_empleado.nombres} {self.id_empleado.apellidos})"
