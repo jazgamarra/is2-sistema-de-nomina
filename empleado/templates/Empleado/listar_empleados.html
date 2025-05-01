@@ -71,7 +71,11 @@
         <div class="text-center mt-4">
             {% url 'crear_empleado' as crear_empleado_url %}
             {% include 'boton_submit.html' with button_text="Agregar Empleado" href=crear_empleado_url %}
-                    </div>
+                <br><br>
+
+            {% url 'menu' as menu_url %}
+            {% include 'boton_atras.html' with button_text="Volver al Menú Principal" href=menu_url %}
+        </div>
     </div>
 </body>
 </html>

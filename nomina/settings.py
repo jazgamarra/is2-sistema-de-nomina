@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Nomina',
         'USER': 'postgres',
-        'PASSWORD': '0000',
+        'PASSWORD': 'pivote',
         'HOST': 'localhost',  # o la IP del servidor
         'PORT': '5432',
         'OPTIONS': {
@@ -137,4 +137,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Redirecciones de autenticación
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/empleados/'
