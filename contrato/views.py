@@ -21,9 +21,13 @@ def crear_contrato(request):
         if form.is_valid():
             form.save()
             return redirect('listar_contratos')
+        else:
+            # Agrega esto para ver los errores en la consola del servidor
+            print(form.errors)  # Esto imprime los errores del formulario si no es válido
     else:
         form = ContratoForm()
     return render(request, 'contrato/crear_contrato.html', {'form': form})
+
 
 @login_required
 def editar_contrato(request, pk):
