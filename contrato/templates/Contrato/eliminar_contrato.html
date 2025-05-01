@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Contrato</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card-delete {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+            color: white;
+            border-radius: 50px;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-eliminar {
+            background-color: #9c4dcc;
+            color: white;
+            border-radius: 50px;
+            border: none;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #7c35b2;
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="card-delete text-center">
+        <h4 class="mb-4">¿Estás seguro de que deseas eliminar el contrato del siguiente empleado?</h4>
+        <h5 class="mb-4">{{ contrato.id_empleado.nombres }} {{ contrato.id_empleado.apellidos }}</h5>
+        <p><strong>Tipo de contrato:</strong> {{ contrato.tipo_contrato }}</p>
+        <p><strong>Salario:</strong> {{ contrato.salario | floatformat:2 }}</p>
+
+        <form method="POST" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-eliminar px-4">Eliminar</button>
+        </form>
+
+        <a href="{% url 'listar_contratos' %}" class="btn btn-cancelar px-4 ml-2">Cancelar</a>
+    </div>
+</body>
+</html>

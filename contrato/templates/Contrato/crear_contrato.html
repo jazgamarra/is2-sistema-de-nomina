@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Nuevo Contrato</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    {% include 'header.html' %}
+    <div class="container">
+        <h1 class="text-center my-5">Crear Nuevo Contrato</h1>
+        <form method="POST" class="col-md-6 offset-md-3">
+            {% csrf_token %}
+        
+            <div class="form-group">
+                <label for="{{ form.id_empleado.id_for_label }}">Empleado</label>
+                {{ form.id_empleado }}
+                {% if form.id_empleado.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.id_empleado.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.tipo_contrato.id_for_label }}">Tipo de Contrato</label>
+                {{ form.tipo_contrato }}
+                {% if form.tipo_contrato.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.tipo_contrato.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.fecha_inicio.id_for_label }}">Fecha de Inicio</label>
+                {{ form.fecha_inicio }}
+                {% if form.fecha_inicio.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.fecha_inicio.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.fecha_fin.id_for_label }}">Fecha de Fin</label>
+                {{ form.fecha_fin }}
+                {% if form.fecha_fin.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.fecha_fin.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group form-check">
+                {{ form.tiene_beneficios }}
+                <label class="form-check-label" for="{{ form.tiene_beneficios.id_for_label }}">¿Tiene Beneficios?</label>
+                {% if form.tiene_beneficios.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.tiene_beneficios.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group">
+                <label for="{{ form.salario_acordado.id_for_label }}">Salario Acordado</label>
+                {{ form.salario_acordado }}
+                {% if form.salario_acordado.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.salario_acordado.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <div class="form-group form-check">
+                {{ form.contrato_activo }}
+                <label class="form-check-label" for="{{ form.contrato_activo.id_for_label }}">Contrato Activo</label>
+                {% if form.contrato_activo.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.contrato_activo.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-center">
+                {% url 'listar_contratos' as enlace %}
+                {% include 'boton_atras.html' with button_text="Cancelar" href=enlace %}
+
+                {% include 'boton_submit.html' with button_text="Crear contrato" %}
+            </div>
+            
+        </form>
+    </div>
+
+    <!-- Scripts de Bootstrap (opcional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
