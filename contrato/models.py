@@ -3,10 +3,12 @@ from django.db import models
 class Contrato(models.Model):
     id_contrato = models.AutoField(primary_key=True)
     id_empleado = models.ForeignKey(
-        'empleado.Empleado', 
-        on_delete=models.CASCADE, 
-        related_name='contratos'  # ✅ Cambiado a plural por claridad
+        "empleado.Empleado",
+        on_delete=models.CASCADE,
+        related_name='contratos',
+        db_column='id_empleado'  # Especifica el nombre de la columna
     )
+
     tipo_contrato = models.CharField(max_length=100)
     salario = models.DecimalField(max_digits=10, decimal_places=2)
     salario_acordado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
