@@ -3,6 +3,6 @@ from .models import Contrato
 
 @admin.register(Contrato)
 class ContratoAdmin(admin.ModelAdmin):
-    # Actualiza 'list_display' para usar 'id' en lugar de 'id_contrato'
     list_display = ['id_contrato', 'id_empleado', 'tipo_contrato', 'salario', 'fecha_inicio', 'fecha_fin', 'contrato_activo']
-    search_fields = ('id', 'id_empleado__nombres', 'id_empleado__apellidos')
+    list_filter = ['contrato_activo', 'tipo_contrato']  # ✅ Añadido para mejorar la filtración en el admin
+    search_fields = ['id_contrato', 'id_empleado__nombres', 'id_empleado__apellidos']  # ✅ Corregido 'id' → 'id_contrato'

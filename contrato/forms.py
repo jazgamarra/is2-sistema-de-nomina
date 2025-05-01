@@ -23,5 +23,12 @@ class ContratoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Asegurar que 'salario_acordado' sea opcional
-        self.fields['salario_acordado'].required = False
+        self.fields['salario_acordado'].required = False  # ✅ Confirmado opcional
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_inicio = cleaned_data.get("fecha_inicio")
+        fecha_fin = cleaned_data.get("fecha_fin")
+
+        if fecha_inicio and fecha_fin and fecha_fin < fecha_inicio:
+            self.add_error('fecha_fin', "La fecha de fin no puede ser anterior a la fecha de inicio.")
