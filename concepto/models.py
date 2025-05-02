@@ -8,5 +8,8 @@ class Concepto(models.Model):
     permite_cuotas = models.BooleanField(default=False)
     cant_cuota = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        db_table = 'concepto'  # Especifica el nombre de la tabla si quieres personalizarlo
+
     def __str__(self):
         return self.descripcion

@@ -25,6 +25,9 @@ class Concepto(models.Model):
     class Meta:
         
         db_table = 'concepto'
+    
+    def __str__(self):
+        return self.descripcion
 
 class ConceptoLiquidacion(models.Model):
     id_liquidacion = models.ForeignKey('Liquidacion', models.DO_NOTHING, db_column='id_liquidacion', blank=True, null=True)

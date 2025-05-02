@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'nomina',
     'usuarios',
     'liquidacion',
-    'contrato'
+    'contrato',
 ]
 
 MIDDLEWARE = [

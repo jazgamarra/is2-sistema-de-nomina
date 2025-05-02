@@ -1,12 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Concepto
-from .forms import ConceptoForm
+from ..liquidacion.forms import ConceptoForm
 from django.contrib.auth.decorators import login_required
 
 @login_required
 def listar_conceptos(request):
     conceptos = Concepto.objects.all()
-    return render(request, 'concepto/listar_conceptos.html', {'conceptos': conceptos})
+    return render(request, 'concepto/listar_concepto.html', {'conceptos': conceptos})
 
 @login_required
 def crear_concepto(request):

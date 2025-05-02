@@ -23,6 +23,6 @@ urlpatterns = [
     path('', include('mi_app.urls')),
     path('liquidacion/', include('liquidacion.urls')), 
     path('usuarios/', include('usuarios.urls')),
-    path('contrato/', include('contrato.urls'))
+    path('contrato/', include('contrato.urls')),
 
 ]
