@@ -9,18 +9,24 @@
 </head>
 <body class="bg-light">
     {% include 'header.html' %}
-    <div class="card-delete text-center">
-        <h4 class="mb-4">¿Estás seguro de que deseas eliminar el concepto?</h4>
-        <h5 class="mb-4">{{ concepto.nombre }}</h5>
-        <p><strong>Descripción:</strong> {{ concepto.descripcion }}</p>
-        <p><strong>Valor:</strong> {{ concepto.valor | floatformat:2 }}</p>
+    <div class="container text-center mt-5">
+        <div class="card p-4 shadow-sm">
+            <h4 class="mb-4">¿Estás seguro de que deseas eliminar el siguiente concepto?</h4>
+            
+            <p><strong>Descripción:</strong> {{ concepto.descripcion }}</p>
+            <p><strong>Es Fijo:</strong> {{ concepto.es_fijo|yesno:"Sí,No" }}</p>
+            <p><strong>Es Débito/Crédito:</strong> {{ concepto.es_deb_cred|yesno:"Sí,No" }}</p>
+            <p><strong>Porcentaje:</strong> {{ concepto.porcentaje|floatformat:2 }}%</p>
+            <p><strong>Permite Cuotas:</strong> {{ concepto.permite_cuotas|yesno:"Sí,No" }}</p>
+            <p><strong>Cantidad de Cuotas:</strong> {{ concepto.cant_cuotas }}</p>
 
-        <form method="POST" class="d-inline">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Eliminar</button>
-        </form>
-
-        <a href="{% url 'listar_conceptos' %}" class="btn btn-secondary">Cancelar</a>
+            <form method="POST" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+            <a href="{% url 'listar_conceptos' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
     </div>
 </body>
 </html>
+

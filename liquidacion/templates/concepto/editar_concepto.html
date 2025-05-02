@@ -13,16 +13,6 @@
         <h1 class="text-center my-5">Editar Concepto</h1>
         <form method="POST" class="col-md-6 offset-md-3">
             {% csrf_token %}
-        
-            <div class="form-group">
-                <label for="{{ form.nombre.id_for_label }}">Nombre</label>
-                {{ form.nombre }}
-                {% if form.nombre.errors %}
-                    <div class="alert alert-danger">
-                        {{ form.nombre.errors.0 }}
-                    </div>
-                {% endif %}
-            </div>
 
             <div class="form-group">
                 <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
@@ -35,11 +25,51 @@
             </div>
 
             <div class="form-group">
-                <label for="{{ form.valor.id_for_label }}">Valor</label>
-                {{ form.valor }}
-                {% if form.valor.errors %}
+                <label for="{{ form.es_fijo.id_for_label }}">¿Es fijo?</label>
+                {{ form.es_fijo }}
+                {% if form.es_fijo.errors %}
                     <div class="alert alert-danger">
-                        {{ form.valor.errors.0 }}
+                        {{ form.es_fijo.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.es_deb_cred.id_for_label }}">¿Es débito/crédito?</label>
+                {{ form.es_deb_cred }}
+                {% if form.es_deb_cred.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.es_deb_cred.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.porcentaje.id_for_label }}">Porcentaje</label>
+                {{ form.porcentaje }}
+                {% if form.porcentaje.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.porcentaje.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.permite_cuotas.id_for_label }}">¿Permite cuotas?</label>
+                {{ form.permite_cuotas }}
+                {% if form.permite_cuotas.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.permite_cuotas.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.cant_cuotas.id_for_label }}">Cantidad de cuotas</label>
+                {{ form.cant_cuotas }}
+                {% if form.cant_cuotas.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.cant_cuotas.errors.0 }}
                     </div>
                 {% endif %}
             </div>

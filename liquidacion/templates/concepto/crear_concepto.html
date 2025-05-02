@@ -14,16 +14,7 @@
         <form method="POST" class="col-md-6 offset-md-3">
             {% csrf_token %}
         
-            <div class="form-group">
-                <label for="{{ form.id_empleado.id_for_label }}">Empleado</label>
-                {{ form.id_empleado }}
-                {% if form.id_empleado.errors %}
-                    <div class="alert alert-danger">
-                        {{ form.id_empleado.errors.0 }}
-                    </div>
-                {% endif %}
-            </div>
-        
+            <!-- Campo de Descripción -->
             <div class="form-group">
                 <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
                 {{ form.descripcion }}
@@ -34,22 +25,46 @@
                 {% endif %}
             </div>
         
+            <!-- Campo Es Fijo -->
             <div class="form-group">
-                <label for="{{ form.monto.id_for_label }}">Monto</label>
-                {{ form.monto }}
-                {% if form.monto.errors %}
+                <label for="{{ form.es_fijo.id_for_label }}">Es Fijo</label>
+                {{ form.es_fijo }}
+                {% if form.es_fijo.errors %}
                     <div class="alert alert-danger">
-                        {{ form.monto.errors.0 }}
+                        {{ form.es_fijo.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Campo Es Debito Crédito -->
+            <div class="form-group">
+                <label for="{{ form.es_deb_cred.id_for_label }}">Es Débito Crédito</label>
+                {{ form.es_deb_cred }}
+                {% if form.es_deb_cred.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.es_deb_cred.errors.0 }}
                     </div>
                 {% endif %}
             </div>
         
+            <!-- Campo Porcentaje -->
             <div class="form-group">
-                <label for="{{ form.fecha.id_for_label }}">Fecha</label>
-                {{ form.fecha }}
-                {% if form.fecha.errors %}
+                <label for="{{ form.porcentaje.id_for_label }}">Porcentaje</label>
+                {{ form.porcentaje }}
+                {% if form.porcentaje.errors %}
                     <div class="alert alert-danger">
-                        {{ form.fecha.errors.0 }}
+                        {{ form.porcentaje.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        
+            <!-- Campo Cantidad de Cuotas -->
+            <div class="form-group">
+                <label for="{{ form.cant_cuotas.id_for_label }}">Cantidad de Cuotas</label>
+                {{ form.cant_cuotas }}
+                {% if form.cant_cuotas.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.cant_cuotas.errors.0 }}
                     </div>
                 {% endif %}
             </div>

@@ -14,7 +14,7 @@ class Liquidacion(models.Model):
         db_table = 'liquidacion'
 
 class Concepto(models.Model):
-    id_concepto = models.IntegerField(primary_key=True)
+    id_concepto = models.AutoField(primary_key=True)
     descripcion = models.CharField()
     es_fijo = models.BooleanField()
     es_deb_cred = models.BooleanField()
