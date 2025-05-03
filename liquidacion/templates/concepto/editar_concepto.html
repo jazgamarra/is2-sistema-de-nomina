@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Concepto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    {% include 'header.html' %}
+    <div class="container">
+        <h1 class="text-center my-5">Editar Concepto</h1>
+        <form method="POST" class="col-md-6 offset-md-3">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.descripcion.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.es_fijo.id_for_label }}">¿Es fijo?</label>
+                {{ form.es_fijo }}
+                {% if form.es_fijo.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.es_fijo.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.es_deb_cred.id_for_label }}">¿Es débito/crédito?</label>
+                {{ form.es_deb_cred }}
+                {% if form.es_deb_cred.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.es_deb_cred.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.porcentaje.id_for_label }}">Porcentaje</label>
+                {{ form.porcentaje }}
+                {% if form.porcentaje.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.porcentaje.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.permite_cuotas.id_for_label }}">¿Permite cuotas?</label>
+                {{ form.permite_cuotas }}
+                {% if form.permite_cuotas.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.permite_cuotas.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.cant_cuotas.id_for_label }}">Cantidad de cuotas</label>
+                {{ form.cant_cuotas }}
+                {% if form.cant_cuotas.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.cant_cuotas.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-center">
+                {% url 'listar_conceptos' as enlace %}
+                {% include 'boton_atras.html' with button_text="Cancelar" href=enlace %}
+                {% include 'boton_submit.html' with button_text="Actualizar concepto" %}
+            </div>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
