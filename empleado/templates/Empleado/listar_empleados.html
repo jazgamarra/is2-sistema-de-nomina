@@ -73,9 +73,26 @@
             {% include 'boton_submit.html' with button_text="Agregar Empleado" href=crear_empleado_url %}
                 <br><br>
 
-            {% url 'menu' as menu_url %}
-            {% include 'boton_atras.html' with button_text="Volver al Menú Principal" href=menu_url %}
-        </div>
+            <a href="/" class="btn-volver-menu">Volver al Menú Principal</a>           
+            </div>
+            
+            <style>
+                .btn-volver-menu {
+                    background-color: white; /* Botón blanco */
+                    color: #9c4dcc; /* Texto lila */
+                    border: 2px solid #9c4dcc; /* Borde lila */
+                    border-radius: 50px;
+                    padding: 10px 25px;
+                    font-size: 16px;
+                    text-decoration: none;
+                    transition: background-color 0.3s ease, color 0.3s ease;
+                }
+                
+                .btn-volver-menu:hover {
+                    background-color: #9c4dcc; /* Fondo lila al pasar el mouse */
+                    color: white; /* Texto blanco */
+                }
+            </style>
     </div>
 </body>
 </html>
