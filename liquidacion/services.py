@@ -7,7 +7,7 @@ def calcular_sueldo_detallado(id_empleado):
         cursor.execute("""
             SELECT e.aplica_ips, e.hijos_menores_18, c.salario_acordado
             FROM empleado e
-            JOIN contrato c ON e.id_contrato = c.id_contrato
+            JOIN contrato c ON c.id_empleado_id = e.id_empleado
             WHERE e.id_empleado = %s
         """, [id_empleado])
         empleado = cursor.fetchone()

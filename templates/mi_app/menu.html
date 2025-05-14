@@ -84,22 +84,23 @@
             </div>
         </div>
             <!-- Botón nuevo para ir a Reportes -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <!-- Icono bonito -->
-                        <div class="mb-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#a23db7" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
-                                <path d="M0 0h1v15h15v1H0V0z"/>
-                                <path d="M10 10.5a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0v7zM5 10.5a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-1 0v4zM15 10.5a.5.5 0 0 0 1 0v-5a.5.5 0 0 0-1 0v5z"/>
-                            </svg>
-                        </div>
-                        <h5 class="card-title">Gestionar Reportes</h5>
-                        <p class="card-text">Consultar nóminas y detalles salariales de empleados.</p>
-                        <a href="{% url 'listar_empleados_reporte' %}" class="btn btn-primary">Ir a Reportes</a>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center shadow p-3">
+                <div class="card-body">
+                    <!-- Icono bonito -->
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#a23db7" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                            <path d="M0 0h1v15h15v1H0V0z"/>
+                            <path d="M10 10.5a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0v7zM5 10.5a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-1 0v4zM15 10.5a.5.5 0 0 0 1 0v-5a.5.5 0 0 0-1 0v5z"/>
+                        </svg>
                     </div>
+                    <h5 class="card-title">Gestionar Reportes</h5>
+                    <p class="card-text">Consultar nóminas y detalles salariales de empleados.</p>
+                    <a href="{% url 'listar_empleados_reporte' %}" class="btn btn-primary">Ir a Reportes</a>
                 </div>
             </div>
+        </div>
+
             
 
     </div>
