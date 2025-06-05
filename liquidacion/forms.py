@@ -13,9 +13,19 @@ class ConceptoForm(forms.ModelForm):
             'cant_cuotas',
         ]
         widgets = {
-            'porcentaje': forms.NumberInput(attrs={'type': 'number', 'step': '0.01'}),
-            'cant_cuotas': forms.NumberInput(attrs={'type': 'number'}),
+            'porcentaje': forms.NumberInput(attrs={
+                'type': 'number',
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'cant_cuotas': forms.NumberInput(attrs={
+                'type': 'number',
+                'class': 'form-control'
+            }),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'}),
+            
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

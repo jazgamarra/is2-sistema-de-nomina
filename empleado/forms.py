@@ -17,8 +17,8 @@ class EmpleadoForm(forms.ModelForm):
             'email',
             'fecha_ingreso',
             'activo',
-            'hijos_menores_18',  # 🔥 Nuevo
-            'aplica_ips',        # 🔥 Nuevo
+            'hijos_menores_18',  
+            'aplica_ips',        
         ]
 
         widgets = {

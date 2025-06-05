@@ -66,7 +66,6 @@
         <div class="text-center mt-4">
             {% url 'crear_concepto' as crear_concepto_url %}
             {% include 'boton_submit.html' with button_text="Agregar Concepto" href=crear_concepto_url %}
-
             <a href="/" class="btn-volver-menu">Volver al Menú Principal</a>           
         </div>
         
@@ -74,12 +73,10 @@
             .btn-agregar {
                 background-color: #9c4dcc;
                 border: none;
-                border-radius: 50px;
-                padding: 10px 25px;
-                font-size: 16px;
-                color: white;
-                text-decoration: none;
-                transition: background-color 0.3s ease;
+                border-radius: 50px;  /* Redondeado */
+                margin-right: 10px;  /* Espacio a la izquierda */
+                font-size: 16px;  /* Tamaño de fuente */
+                padding: 4px 20px;  /* Espaciado interno */
             }
 
             .btn-agregar:hover {
@@ -89,14 +86,12 @@
 
             .btn-volver-menu {
                 background-color: white;
-                color: #9c4dcc;
-                border: 2px solid #9c4dcc;
-                border-radius: 50px;
-                padding: 10px 25px;
-                font-size: 16px;
-                text-decoration: none;
-                transition: background-color 0.3s ease, color 0.3s ease;
-                margin-left: 10px;
+                color: #9c4dcc;  /* Lila */
+                border: 2px solid #9c4dcc;  /* Borde lila */
+                border-radius: 50px;  /* Redondeado */
+                margin-right: 10px;  /* Espacio a la izquierda */
+                font-size: 16px;  /* Tamaño de fuente */
+                padding: 4px 20px;  /* Espaciado interno */
             }
 
             .btn-volver-menu:hover {

@@ -4,23 +4,18 @@ from .models import Contrato
 class ContratoForm(forms.ModelForm):
     class Meta:
         model = Contrato
-        fields = [
-            'id_empleado',
-            'tipo_contrato',
-            'salario',
-            'salario_acordado',
-            'fecha_inicio',
-            'fecha_fin',
-            'tiene_beneficios',
-            'contrato_activo',
-        ]
+        fields = '__all__' 
         widgets = {
-            'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
-            'salario': forms.NumberInput(attrs={'type': 'number', 'step': '0.01'}),
-            'salario_acordado': forms.NumberInput(attrs={'type': 'number', 'step': '0.01'}),
+            'id_empleado': forms.Select(attrs={'class': 'form-control'}),
+            'tipo_contrato': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'salario': forms.NumberInput(attrs={'class': 'form-control'}),
+            'salario_acordado': forms.NumberInput(attrs={'class': 'form-control'}),
+            'tiene_beneficios': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'contrato_activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['salario_acordado'].required = False  # ✅ Confirmado opcional

@@ -27,8 +27,8 @@ def ver_nomina_empleado(request, empleado_id):
     context = {
         'empleado': empleado,
         'salario_base': salario_base,
-        'bonificacion_total': bonificacion_total,   # 🔥 Ahora sí pasa
-        'descuento_total': descuento_total,         # 🔥 Ahora sí pasa
+        'bonificacion_total': bonificacion_total,  
+        'descuento_total': descuento_total,        
         'sueldo_total': sueldo_total,
     }
     return render(request, 'liquidacion/reporte_nomina.html', context)

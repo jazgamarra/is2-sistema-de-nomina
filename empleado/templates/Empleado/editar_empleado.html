@@ -15,15 +15,10 @@
         <form method="POST" class="col-md-6 offset-md-3">
             {% csrf_token %}
         
-            <div class="form-group">
-                <label for="{{ form.id_departamento.id_for_label }}">Seleccionar Departamento</label>
-                {{ form.id_departamento }}
-            </div>
-        
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="{{ form.id_cargo.id_for_label }}">Seleccionar Cargo</label>
                 {{ form.id_cargo }}
-            </div>
+            </div> -->
         
             <div class="form-group">
                 <label for="{{ form.nombres.id_for_label }}">Nombres</label>
@@ -54,7 +49,12 @@
                 <label for="{{ form.email.id_for_label }}">Email</label>
                 {{ form.email }}
             </div>
-        
+                
+            <div class="form-group">
+                <label for="{{ form.id_departamento.id_for_label }}">Seleccionar Departamento</label>
+                {{ form.id_departamento }}
+            </div>
+            
             <div class="form-group">
                 <label for="{{ form.fecha_ingreso.id_for_label }}">Fecha de Ingreso</label>
                 {{ form.fecha_ingreso }}
