@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mb-4">Gestionar Nóminas</h2>
+
+<div class="d-flex justify-content-center gap-3">
+    <a href="{% url 'generar_nomina' %}" class="btn btn-primary" style="background-color: #9c27b0; border: none;">Generar Nómina</a>
+    <a href="{% url 'lista_empleados_concepto' %}" class="btn btn-secondary" style="background-color: #ba68c8;">
+        Cargar Conceptos
+    </a>
+</div>
+
+{% endblock %}

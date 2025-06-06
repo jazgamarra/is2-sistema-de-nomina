@@ -95,3 +95,16 @@ def guardar_conceptos(request, empleado_id):
                 monto_concepto=monto
             )
         return redirect('listar_empleados') 
+
+# Vistas para gestionar nominas 
+def gestionar_nominas(request):
+    return render(request, 'liquidacion/gestionar_nominas.html')
+
+def generar_nomina(request):
+    return render(request, 'liquidacion/generar_nomina.html')
+
+def listar_empleados_para_concepto(request):
+    empleados = Empleado.objects.all()
+    return render(request, 'liquidacion/lista_empleados_concepto.html', {
+        'empleados': empleados
+    })

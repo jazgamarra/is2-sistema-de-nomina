@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mb-4">Seleccionar Empleado para Cargar Conceptos</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead class="thead-light">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado.nombres }}</td>
+                <td>{{ empleado.apellidos }}</td>
+                <td>
+                    <a href="{% url 'cargar_conceptos_empleado' empleado.id_empleado %}" class="btn btn-sm btn-cargar">
+                        Cargar Conceptos
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No hay empleados disponibles.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'gestionar_nominas' %}" class="btn btn-volver-menu mb-5">Volver a Nómina</a>
+</div>
+
+<style>
+.btn-cargar {
+    background-color: #9c27b0;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 50px;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+.btn-cargar:hover {
+    background-color: #7b1fa2;
+    color: white;
+}
+
+.btn-volver-menu {
+    background-color: white;
+    color: #9c4dcc;
+    border: 2px solid #9c4dcc;
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: inline-block;
+}
+.btn-volver-menu:hover {
+    background-color: #9c4dcc;
+    color: white;
+}
+</style>
+
+{% endblock %}

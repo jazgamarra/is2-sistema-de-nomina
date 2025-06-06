@@ -1,17 +1,57 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Iniciar sesión</title>
-</head>
-<body>
-    <h2>Login</h2>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 60px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .login-container h2 {
+        margin-bottom: 25px;
+        color: #9c27b0;
+        font-weight: 600;
+    }
+
+    .login-container label {
+        font-weight: 500;
+        float: left;
+    }
+
+    .login-container input {
+        border-radius: 30px;
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .btn-ingresar {
+        background-color: #9c27b0;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        font-size: 16px;
+        border-radius: 50px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-ingresar:hover {
+        background-color: #7b1fa2;
+    }
+</style>
+
+<div class="login-container">
+    <h2>Iniciar sesión</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Ingresar</button>
+        <button type="submit" class="btn-ingresar">Ingresar</button>
     </form>
-
-    <a href="/" style="margin-left: 10px;">Volver al menú principal</a>
-</body>
-</html>
+</div>
+{% endblock %}

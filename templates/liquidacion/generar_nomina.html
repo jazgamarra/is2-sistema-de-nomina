@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mb-4">Generar Nómina</h2>
+
+<div class="container">
+    <!-- Fila 1: Selección de período -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label for="mes">Mes</label>
+            <select id="mes" class="form-control">
+                <option>Enero</option>
+                <option>Febrero</option>
+                <option>Marzo</option>
+                <!-- ... -->
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="anho">Año</label>
+            <select id="anho" class="form-control">
+                <option>2025</option>
+                <option>2024</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100" style="background-color:#9c27b0;">Generar Nómina</button>
+        </div>
+    </div>
+
+    <!-- Fila 2: Buscar por cédula -->
+    <div class="mb-4">
+        <label for="cedula">Buscar por Cédula</label>
+        <input type="text" class="form-control" id="cedula" placeholder="Ingrese la cédula del empleado">
+    </div>
+
+    <!-- Zona editable (si se encontró empleado) -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">Datos de la Nómina (editables)</div>
+        <div class="card-body">
+            <p><strong>Nombre:</strong> (Aquí va el nombre del empleado)</p>
+            <p><strong>Salario base:</strong> <input class="form-control" type="number" value="0"></p>
+            <p><strong>Bonificaciones:</strong> <input class="form-control" type="number" value="0"></p>
+            <p><strong>Descuentos:</strong> <input class="form-control" type="number" value="0"></p>
+            <button class="btn btn-outline-success">Confirmar CAMBIOS</button>
+        </div>
+    </div>
+
+    <!-- Lista de nómina generada -->
+    <div class="mb-4">
+        <h5>Lista de Nómina Generada</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Salario</th>
+                    <th>Bonos</th>
+                    <th>Descuentos</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ejemplo 1</td>
+                    <td>3.000.000</td>
+                    <td>500.000</td>
+                    <td>200.000</td>
+                    <td>3.300.000</td>
+                </tr>
+                <!-- Más empleados... -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Botones finales -->
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-secondary mb-5">Generar PDF</button>
+        <button class="btn btn-success mb-5">Confirmar Nómina</button>
+    </div>
+</div>
+
+{% endblock %}

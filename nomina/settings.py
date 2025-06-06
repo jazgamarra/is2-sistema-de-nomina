@@ -60,10 +60,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            # Si tienes plantillas globales, puedes definir una carpeta templates a nivel de proyecto
-            BASE_DIR / "templates",  # Opcional, si tienes plantillas fuera de las apps
+    
+            BASE_DIR / "templates",  
         ],
-        'APP_DIRS': True,  # Esto asegura que Django busque plantillas dentro de las apps
+        'APP_DIRS': True,  
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'Nomina',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': '123456789',
         'HOST': 'localhost',  # o la IP del servidor
         'PORT': '5432',
         'OPTIONS': {
@@ -139,4 +139,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Redirecciones de autenticación
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/empleados/'
+LOGIN_REDIRECT_URL = '/'
