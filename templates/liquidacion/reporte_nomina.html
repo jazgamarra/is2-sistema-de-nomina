@@ -24,12 +24,12 @@
 
             <ul class="list-group list-group-flush mt-3">
                 <li class="list-group-item"><strong>Salario Base:</strong> {{ salario_base|floatformat:2 }} Gs</li>
-                <li class="list-group-item text-success"><strong>Bonificaciones:</strong> +{{ bonificacion_total|floatformat:2 }} Gs</li>
-                <li class="list-group-item text-danger"><strong>Descuentos:</strong> -{{ descuento_total|floatformat:2 }} Gs</li>
+                <li class="list-group-item text-success"><strong>Bonificaciones:</strong> +{{ bonificacion_total|floatformat:0 }} Gs</li>
+                <li class="list-group-item text-danger"><strong>Descuentos:</strong> -{{ descuento_total|floatformat:0 }} Gs</li>
             </ul>
 
             <hr>
-            <h4 class="text-primary text-center mt-4"><strong>Sueldo Total Calculado:</strong> {{ sueldo_total|floatformat:2 }} Gs</h4>
+            <h4 class="text-primary text-center mt-4"><strong>Sueldo Total Calculado:</strong> {{ sueldo_total|floatformat:0 }} Gs</h4>
         </div>
     </div>
 

@@ -11,4 +11,6 @@ urlpatterns = [
     path('concepto/crear/', views.crear_concepto, name='crear_concepto'),
     path('concepto/editar/<int:pk>/', views.editar_concepto, name='editar_concepto'),
     path('concepto/eliminar/<int:pk>/', views.eliminar_concepto, name='eliminar_concepto'),
+    path('empleado/<int:empleado_id>/cargar-conceptos/', views.cargar_conceptos_empleado, name='cargar_conceptos_empleado'),
+    path('empleado/<int:empleado_id>/guardar-conceptos/', views.guardar_conceptos, name='guardar_conceptos'),
 ]

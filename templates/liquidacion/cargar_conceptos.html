@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar conceptos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  {% include 'header.html' %}
+  <div class="container mt-4">
+    <h3>Cargar conceptos para {{ empleado.nombres }} {{ empleado.apellidos }}</h3>
+
+    <!-- Formulario de ingreso de concepto -->
+    <form id="form-concepto" class="row g-3">
+      <div class="col-md-6">
+        <label for="concepto" class="form-label">Concepto</label>
+        <select id="concepto" class="form-select" required>
+          <option selected disabled>Seleccione...</option>
+          {% for concepto in conceptos %}
+            <option value="{{ concepto.id_concepto }}">{{ concepto.descripcion }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="monto" class="form-label">Monto</label>
+        <input type="number" step="0.01" class="form-control" id="monto" required>
+      </div>
+
+      <div class="col-12 text-start">
+        {% include "boton_submit.html" with button_text="Agregar" btn_class="btn-lila" %}
+      </div>
+    </form>
+
+    <!-- Lista lateral -->
+    <hr>
+    <h5>Conceptos agregados:</h5>
+    <table class="table table-bordered mt-3" id="tabla-conceptos">
+      <thead class="table-light">
+        <tr>
+          <th>Concepto</th>
+          <th>Monto</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Botón Guardar -->
+    <form method="post" action="{% url 'guardar_conceptos' empleado.id_empleado %}">
+      {% csrf_token %}
+      <input type="hidden" name="conceptos_json" id="conceptos_json">
+      {% include "boton_submit.html" with button_text="Guardar conceptos" %}
+    </form>
+  </div>
+</body>
+</html>
+
+<script>
+  const conceptoSelect = document.getElementById('concepto');
+  const form = document.getElementById('form-concepto');
+  const tabla = document.querySelector('#tabla-conceptos tbody');
+  const conceptosJSON = document.getElementById('conceptos_json');
+  let conceptosAgregados = [];
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const conceptoId = conceptoSelect.value;
+    const conceptoText = conceptoSelect.options[conceptoSelect.selectedIndex].text;
+    const monto = parseFloat(document.getElementById('monto').value);
+
+    if (!conceptoId || !monto) return;
+
+    conceptosAgregados.push({ id_concepto: conceptoId, monto });
+
+    const row = tabla.insertRow();
+    row.innerHTML = `
+      <td>${conceptoText}</td>
+      <td>${monto.toFixed(2)}</td>
+      <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); conceptosAgregados.splice(${tabla.rows.length - 1}, 1)">Eliminar</button></td>
+    `;
+
+    conceptosJSON.value = JSON.stringify(conceptosAgregados);
+    form.reset();
+  });
+</script>

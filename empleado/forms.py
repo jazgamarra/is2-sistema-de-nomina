@@ -8,7 +8,7 @@ class EmpleadoForm(forms.ModelForm):
         model = Empleado
         fields = [
             'id_departamento',
-            #'id_cargo',   # En tu base ya no está, pero si querés que siga saliendo para elegir, lo dejamos.
+            #'id_cargo', 
             'nombres',
             'apellidos',
             'cedula',

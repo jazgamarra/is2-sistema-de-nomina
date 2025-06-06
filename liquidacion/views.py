@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404,redirect
 from empleado.models import Empleado
-from liquidacion.models import Concepto
+from liquidacion.models import Concepto, ConceptoLiquidacion
 from liquidacion.forms import ConceptoForm
 from django.contrib.auth.decorators import login_required
+from .services import calcular_sueldo_detallado
+import json
 
-from .services import calcular_sueldo_detallado  # 🔥 Importar correctamente
 
 # Vista para listar empleados
 def listar_empleados_reporte(request):
@@ -72,3 +73,25 @@ def eliminar_concepto(request, pk):
         concepto.delete()  # Elimina físicamente el concepto
         return redirect('listar_conceptos')
     return render(request, 'concepto/eliminar_concepto.html', {'concepto': concepto})
+
+# Vistas para cargar concepto por empleado 
+def cargar_conceptos_empleado(request, empleado_id):
+    empleado = get_object_or_404(Empleado, pk=empleado_id)
+    conceptos = Concepto.objects.all()
+    return render(request, 'liquidacion/cargar_conceptos.html', {
+        'empleado': empleado,
+        'conceptos': conceptos
+    })
+
+def guardar_conceptos(request, empleado_id):
+    if request.method == 'POST':
+        conceptos_data = json.loads(request.POST.get('conceptos_json', '[]'))
+        for item in conceptos_data:
+            concepto = Concepto.objects.get(pk=item['id_concepto'])
+            monto = item['monto']
+            ConceptoLiquidacion.objects.create(
+                id_concepto=concepto,
+                id_liquidacion=None,  
+                monto_concepto=monto
+            )
+        return redirect('listar_empleados') 
