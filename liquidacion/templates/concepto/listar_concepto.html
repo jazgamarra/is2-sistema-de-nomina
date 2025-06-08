@@ -40,27 +40,46 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for concepto in conceptos %}
-                    <tr>
-                        <td>{{ concepto.id_concepto }}</td>
-                        <td>{{ concepto.descripcion }}</td>
-                        <td>{{ concepto.es_fijo|yesno:"Sí,No" }}</td>
-                        <td>{{ concepto.es_deb_cred|yesno:"Sí,No" }}</td>
-                        <td>{{ concepto.porcentaje|floatformat:2 }}</td>
-                        <td>{{ concepto.permite_cuotas|yesno:"Sí,No" }}</td>
-                        <td>{{ concepto.cant_cuotas }}</td>
-                        <td>
-                            <a href="{% url 'editar_concepto' pk=concepto.id_concepto %}" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="{% url 'eliminar_concepto' pk=concepto.id_concepto %}" class="btn btn-danger btn-sm">Eliminar</a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center">No hay conceptos registrados.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
+           <tbody>
+            {% for concepto in conceptos %}
+                <tr>
+                    <td>{{ concepto.id_concepto }}</td>
+                    <td>{{ concepto.descripcion }}</td>
+                    <td>{{ concepto.es_fijo|yesno:"Sí,No" }}</td>
+                    <td>
+                        {% if concepto.es_deb_cred %}
+                            Crédito
+                        {% else %}
+                            Débito
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if concepto.porcentaje %}
+                            {{ concepto.porcentaje|floatformat:0 }}%
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ concepto.permite_cuotas|yesno:"Sí,No" }}</td>
+                    <td>
+                        {% if concepto.cant_cuotas and concepto.cant_cuotas > 0 %}
+                            {{ concepto.cant_cuotas }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'editar_concepto' pk=concepto.id_concepto %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_concepto' pk=concepto.id_concepto %}" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay conceptos registrados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
         </table>
 
         <div class="text-center mt-4">

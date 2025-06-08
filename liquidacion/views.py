@@ -34,7 +34,7 @@ def ver_nomina_empleado(request, empleado_id):
     }
     return render(request, 'liquidacion/reporte_nomina.html', context)
 
-
+# VIEWS DE CONCEPTO
 #Agregué la parte de concepto ya que está está declarada en el models de ésta app
 @login_required
 def listar_conceptos(request):

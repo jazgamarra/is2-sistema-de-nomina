@@ -18,16 +18,16 @@ class Concepto(models.Model):
     descripcion = models.CharField()
     es_fijo = models.BooleanField()
     es_deb_cred = models.BooleanField()
-    porcentaje = models.DecimalField(max_digits=5, decimal_places=5)
-    permite_cuotas = models.BooleanField()
-    cant_cuotas = models.IntegerField()
+    porcentaje = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+    permite_cuotas = models.BooleanField(null=True)
+    cant_cuotas = models.IntegerField(null=True)
 
     class Meta:
         
         db_table = 'concepto'
     
     def __str__(self):
-        return self.descripcion
+        return self.descripcion 
 
 class ConceptoLiquidacion(models.Model):
     id_liquidacion = models.ForeignKey('Liquidacion', models.DO_NOTHING, db_column='id_liquidacion', blank=True, null=True)
