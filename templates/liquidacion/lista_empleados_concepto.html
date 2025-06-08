@@ -21,6 +21,9 @@
                     <a href="{% url 'cargar_conceptos_empleado' empleado.id_empleado %}" class="btn btn-sm btn-cargar">
                         Cargar Conceptos
                     </a>
+                    <a href="{% url 'ver_nomina_empleado' empleado.id_empleado %}" class="btn btn-cargar btn-sm">
+                        Ver Nómina
+                    </a>
                 </td>
             </tr>
             {% empty %}

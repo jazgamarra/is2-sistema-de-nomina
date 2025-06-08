@@ -34,7 +34,7 @@ def calcular_sueldo_detallado(id_empleado):
 
     for descripcion, es_deb_cred, porcentaje in conceptos:
         descripcion = str(descripcion).strip().lower()
-        porcentaje = Decimal(porcentaje)
+        porcentaje = Decimal(porcentaje or 0)
 
         if descripcion == 'bonificacion_por_hijos' and hijos_menores_18 > 0:
             bonificacion_total += (salario_base * (porcentaje / 100)) * hijos_menores_18
