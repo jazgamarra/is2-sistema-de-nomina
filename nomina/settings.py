@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'usuarios',
     'liquidacion',
     'contrato',
+    'reporte',
 ]
 
 MIDDLEWARE = [
