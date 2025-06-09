@@ -4,6 +4,7 @@
 <h2 class="text-center mb-4">Generar Nómina</h2>
 
 <div class="container">
+
     <!-- Fila 1: Selección de período -->
     <div class="row mb-4">
         <div class="col-md-4">
@@ -28,22 +29,15 @@
     </div>
 
     <!-- Fila 2: Buscar por cédula -->
-    <div class="mb-4">
+    <form method="get" class="mb-4">
         <label for="cedula">Buscar por Cédula</label>
-        <input type="text" class="form-control" id="cedula" placeholder="Ingrese la cédula del empleado">
-    </div>
-
-    <!-- Zona editable (si se encontró empleado) -->
-    <div class="card mb-4">
-        <div class="card-header bg-light">Datos de la Nómina (editables)</div>
-        <div class="card-body">
-            <p><strong>Nombre:</strong> (Aquí va el nombre del empleado)</p>
-            <p><strong>Salario base:</strong> <input class="form-control" type="number" value="0"></p>
-            <p><strong>Bonificaciones:</strong> <input class="form-control" type="number" value="0"></p>
-            <p><strong>Descuentos:</strong> <input class="form-control" type="number" value="0"></p>
-            <button class="btn btn-outline-success">Confirmar CAMBIOS</button>
+        <div class="input-group">
+            <input type="text" class="form-control" id="cedula" name="cedula"
+                   placeholder="Ingrese la cédula del empleado"
+                   value="{{ cedula }}">
+            <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
-    </div>
+    </form>
 
     <!-- Lista de nómina generada -->
     <div class="mb-4">
@@ -59,14 +53,19 @@
                 </tr>
             </thead>
             <tbody>
+                {% for n in nominas %}
                 <tr>
-                    <td>Ejemplo 1</td>
-                    <td>3.000.000</td>
-                    <td>500.000</td>
-                    <td>200.000</td>
-                    <td>3.300.000</td>
+                    <td>{{ n.empleado.nombres }} {{ n.empleado.apellidos }}</td>
+                    <td>{{ n.salario|floatformat:0 }} Gs</td>
+                    <td>{{ n.bonos|floatformat:0 }} Gs</td>
+                    <td>{{ n.descuentos|floatformat:0 }} Gs</td>
+                    <td>{{ n.total|floatformat:0 }} Gs</td>
                 </tr>
-                <!-- Más empleados... -->
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No se encontraron resultados.</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

@@ -3,10 +3,10 @@ from empleado.models import Empleado
 from liquidacion.models import Concepto, ConceptoLiquidacion,Liquidacion
 from liquidacion.forms import ConceptoForm
 from django.contrib.auth.decorators import login_required
-from .services import calcular_sueldo_detallado
 import json
 from datetime import date
 from django.contrib import messages
+from .services import calcular_sueldo_detallado
 
 
 # Vista para listar empleados
@@ -126,11 +126,31 @@ def guardar_conceptos(request, empleado_id):
 def gestionar_nominas(request):
     return render(request, 'liquidacion/gestionar_nominas.html')
 
-def generar_nomina(request):
-    return render(request, 'liquidacion/generar_nomina.html')
-
 def listar_empleados_para_concepto(request):
     empleados = Empleado.objects.all()
     return render(request, 'liquidacion/lista_empleados_concepto.html', {
         'empleados': empleados
+    })
+
+def generar_nomina(request):
+    cedula = request.GET.get("cedula")
+    if cedula:
+        empleados = Empleado.objects.filter(cedula=cedula)
+    else:
+        empleados = Empleado.objects.all()
+
+    nominas = []
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+
+    return render(request, 'liquidacion/generar_nomina.html', {
+        'nominas': nominas,
+        'cedula': cedula or ''
     })
