@@ -1,15 +1,73 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="text-center mb-4">Gestionar Nóminas</h2>
+<div class="container mt-5 text-center">
+  <h2 class="mb-5">Gestionar Nóminas</h2>
 
-<div class="d-flex justify-content-center gap-3">
-    <a href="{% url 'generar_nomina' %}" class="btn btn-primary" style="background-color: #9c27b0; border: none;">
-        Generar Nómina
-    </a>
-    <a href="{% url 'lista_empleados_concepto' %}" class="btn btn-secondary" style="background-color: #9c27b0;">
-        Cargar Conceptos por Empleado 
-    </a>
+  <div class="row justify-content-center">
+    <!-- Tarjeta: Generar Nómina -->
+    <div class="col-md-4 mb-4">
+      <div class="card text-center shadow p-3">
+        <div class="card-body">
+          <div class="mb-3">
+            <!-- Icono para nómina -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#a23db7" class="bi bi-cash" viewBox="0 0 16 16">
+              <path d="M11 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/>
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm14 0H2a1 1 0 0 0-1 1v1h14V5a1 1 0 0 0-1-1zm1 3H1v2h14V7zM1 11v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1H1z"/>
+            </svg>
+          </div>
+          <h5 class="card-title">Generar Nómina</h5>
+          <p class="card-text">Calcular y visualizar la liquidación de todos los empleados.</p>
+          <a href="{% url 'generar_nomina' %}" class="btn btn-primary" style="background-color: #9c27b0; border: none;">
+            Ir a Generar
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta: Cargar Conceptos -->
+    <div class="col-md-4 mb-4">
+      <div class="card text-center shadow p-3">
+        <div class="card-body">
+          <div class="mb-3">
+            <!-- Icono para conceptos -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#a23db7" class="bi bi-list-task" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M2 2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm2.5 0H14v1H4.5v-1zM2 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm2.5 0H14v1H4.5v-1zM2 10.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm2.5 0H14v1H4.5v-1z"/>
+            </svg>
+          </div>
+          <h5 class="card-title">Cargar Conceptos</h5>
+          <p class="card-text">Asignar conceptos salariales a empleados individuales.</p>
+          <a href="{% url 'lista_empleados_concepto' %}" class="btn btn-primary" style="background-color: #9c27b0; border: none;">
+            Ir a Cargar
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón volver -->
+  <div class="text-center mt-4">
+    <a href="{% url 'menu' %}" class="btn btn-volver-menu">Volver al Menú Principal</a>
+  </div>
+
+  <style>
+    .btn-volver-menu {
+        background-color: white;
+        color: #9c4dcc;
+        border: 2px solid #9c4dcc;
+        border-radius: 50px;
+        padding: 10px 25px;
+        font-size: 16px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-volver-menu:hover {
+        background-color: #9c4dcc;
+        color: white;
+    }
+  </style>
 </div>
 
 {% endblock %}

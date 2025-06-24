@@ -100,7 +100,6 @@ def guardar_conceptos(request, empleado_id):
 
         empleado = get_object_or_404(Empleado, pk=empleado_id)
 
-        # ✅ Crear liquidación
         liquidacion = Liquidacion.objects.create(
             fecha_liquidacion=date.today(),
             fecha_pago=date.today(),
@@ -109,7 +108,6 @@ def guardar_conceptos(request, empleado_id):
             id_empleado=empleado
         )
 
-        # ✅ Guardar cada concepto vinculado a esta liquidación
         for item in conceptos_data:
             concepto = Concepto.objects.get(pk=item['id_concepto'])
             monto = item['monto']
