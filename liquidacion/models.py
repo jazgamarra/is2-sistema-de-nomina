@@ -2,7 +2,7 @@ from django.db import models
 from empleado.models import Empleado
 
 class Liquidacion(models.Model):
-    id_liquidacion = models.IntegerField(primary_key=True)
+    id_liquidacion = models.AutoField(primary_key=True)
     fecha_liquidacion = models.DateField()
     fecha_pago = models.DateField()
     mes_liquidacion = models.IntegerField()

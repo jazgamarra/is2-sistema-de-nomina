@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404,redirect
 from empleado.models import Empleado
-from liquidacion.models import Concepto, ConceptoLiquidacion
+from liquidacion.models import Concepto, ConceptoLiquidacion,Liquidacion
 from liquidacion.forms import ConceptoForm
 from django.contrib.auth.decorators import login_required
-from .services import calcular_sueldo_detallado
 import json
+from datetime import date
+from django.contrib import messages
+from .services import calcular_sueldo_detallado
 
 
 # Vista para listar empleados
@@ -84,27 +86,71 @@ def cargar_conceptos_empleado(request, empleado_id):
     })
 
 def guardar_conceptos(request, empleado_id):
-    if request.method == 'POST':
-        conceptos_data = json.loads(request.POST.get('conceptos_json', '[]'))
+     if request.method == 'POST':
+        conceptos_str = request.POST.get('conceptos_json', '').strip()
+        if not conceptos_str:
+            messages.error(request, "No se cargaron conceptos.")
+            return redirect('cargar_conceptos_empleado', empleado_id=empleado_id)
+
+        try:
+            conceptos_data = json.loads(conceptos_str)
+        except json.JSONDecodeError:
+            messages.error(request, "Error al procesar los conceptos enviados.")
+            return redirect('cargar_conceptos_empleado', empleado_id=empleado_id)
+
+        empleado = get_object_or_404(Empleado, pk=empleado_id)
+
+        # ✅ Crear liquidación
+        liquidacion = Liquidacion.objects.create(
+            fecha_liquidacion=date.today(),
+            fecha_pago=date.today(),
+            mes_liquidacion=date.today().month,
+            anho_liquidacion=date.today().year,
+            id_empleado=empleado
+        )
+
+        # ✅ Guardar cada concepto vinculado a esta liquidación
         for item in conceptos_data:
             concepto = Concepto.objects.get(pk=item['id_concepto'])
             monto = item['monto']
             ConceptoLiquidacion.objects.create(
                 id_concepto=concepto,
-                id_liquidacion=None,  
+                id_liquidacion=liquidacion,
                 monto_concepto=monto
             )
-        return redirect('listar_empleados') 
+
+        messages.success(request, "Conceptos guardados correctamente.")
+        return redirect('ver_nomina_empleado', empleado_id=empleado.id_empleado)
 
 # Vistas para gestionar nominas 
 def gestionar_nominas(request):
     return render(request, 'liquidacion/gestionar_nominas.html')
 
-def generar_nomina(request):
-    return render(request, 'liquidacion/generar_nomina.html')
-
 def listar_empleados_para_concepto(request):
     empleados = Empleado.objects.all()
     return render(request, 'liquidacion/lista_empleados_concepto.html', {
         'empleados': empleados
+    })
+
+def generar_nomina(request):
+    cedula = request.GET.get("cedula")
+    if cedula:
+        empleados = Empleado.objects.filter(cedula=cedula)
+    else:
+        empleados = Empleado.objects.all()
+
+    nominas = []
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+
+    return render(request, 'liquidacion/generar_nomina.html', {
+        'nominas': nominas,
+        'cedula': cedula or ''
     })
