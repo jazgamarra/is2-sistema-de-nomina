@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar conceptos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+{% include 'header.html' %}
+<div class="container mt-4">
+  <h3>Editar conceptos para {{ empleado.nombres }} {{ empleado.apellidos }}</h3>
+
+  <form id="form-concepto" class="row g-3">
+    <div class="col-md-4">
+      <label for="concepto" class="form-label">Concepto</label>
+      <select id="concepto" class="form-select" required>
+        <option selected disabled>Seleccione...</option>
+        {% for concepto in conceptos %}
+          <option value="{{ concepto.id_concepto }}"
+                  data-es-deb-cred="{{ concepto.es_deb_cred|yesno:'1,0' }}"
+                  data-permite-cuotas="{{ concepto.permite_cuotas|yesno:'1,0' }}"
+                  data-descripcion="{{ concepto.descripcion }}">
+            {{ concepto.descripcion }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label for="monto" class="form-label">Monto</label>
+      <input type="number" step="0.01" class="form-control" id="monto" required>
+    </div>
+
+    <div id="cuotas-opciones" class="col-md-5 d-none">
+      <label class="form-label">Mes y Año de inicio</label>
+      <div class="d-flex gap-2">
+        <input type="number" class="form-control" id="mes" placeholder="Mes (1-12)">
+        <input type="number" class="form-control" id="anho" placeholder="Año (ej: 2025)">
+      </div>
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Agregar</button>
+    </div>
+  </form>
+
+  <hr>
+  <h5>Conceptos asignados:</h5>
+  <form method="post" id="guardar-form" action="">
+    {% csrf_token %}
+    <input type="hidden" name="conceptos_json" id="conceptos_json">
+    <table class="table table-bordered" id="tabla-conceptos">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Monto</th>
+          <th>Mes</th>
+          <th>Año</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Guardar conceptos</button>
+  </form>
+</div>
+
+<script>
+  const conceptosSelect = document.getElementById('concepto');
+  const montoInput = document.getElementById('monto');
+  const mesInput = document.getElementById('mes');
+  const anhoInput = document.getElementById('anho');
+  const cuotasOpciones = document.getElementById('cuotas-opciones');
+  const tabla = document.querySelector('#tabla-conceptos tbody');
+  const conceptosJSON = document.getElementById('conceptos_json');
+  const guardarForm = document.getElementById('guardar-form');
+
+  let conceptosAgregados = [];
+  let editIndex = null;
+
+  conceptosSelect.addEventListener('change', () => {
+    const selected = conceptosSelect.options[conceptosSelect.selectedIndex];
+    const esDebCred = selected.dataset.esDebCred === "1";
+    const permiteCuotas = selected.dataset.permiteCuotas === "1";
+    cuotasOpciones.classList.toggle('d-none', !(esDebCred && permiteCuotas));
+  });
+
+  document.getElementById('form-concepto').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const conceptoId = conceptosSelect.value;
+    const conceptoText = conceptosSelect.options[conceptosSelect.selectedIndex].text;
+    const monto = parseFloat(montoInput.value);
+    const esDebCred = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.esDebCred === "1";
+    const permiteCuotas = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.permiteCuotas === "1";
+
+    let mes = "", anho = "";
+    if (esDebCred && permiteCuotas) {
+      mes = parseInt(mesInput.value);
+      anho = parseInt(anhoInput.value);
+      if (!mes || !anho) return alert("Debe ingresar mes y año.");
+    }
+
+    const nuevoConcepto = { id_concepto: conceptoId, monto, mes, anho };
+
+    if (editIndex !== null) {
+      conceptosAgregados[editIndex] = nuevoConcepto;
+      tabla.rows[editIndex].innerHTML = filaHTML(conceptoText, monto, mes, anho, editIndex);
+      editIndex = null;
+    } else {
+      conceptosAgregados.push(nuevoConcepto);
+      const index = conceptosAgregados.length - 1;
+      const row = tabla.insertRow();
+      row.innerHTML = filaHTML(conceptoText, monto, mes, anho, index);
+    }
+
+    conceptosJSON.value = JSON.stringify(conceptosAgregados);
+    document.getElementById('form-concepto').reset();
+    cuotasOpciones.classList.add('d-none');
+  });
+
+  function filaHTML(texto, monto, mes, anho, index) {
+    return `
+      <td>${texto}</td>
+      <td>${monto.toFixed(2)}</td>
+      <td>${mes || "-"}</td>
+      <td>${anho || "-"}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-warning me-1" onclick="editarFila(${index})">Editar</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila(${index}, this)">Eliminar</button>
+      </td>`;
+  }
+
+  function editarFila(index) {
+    const concepto = conceptosAgregados[index];
+    conceptosSelect.value = concepto.id_concepto;
+    montoInput.value = concepto.monto;
+    mesInput.value = concepto.mes || "";
+    anhoInput.value = concepto.anho || "";
+
+    const selected = conceptosSelect.options[conceptosSelect.selectedIndex];
+    const esDebCred = selected.dataset.esDebCred === "1";
+    const permiteCuotas = selected.dataset.permiteCuotas === "1";
+    cuotasOpciones.classList.toggle('d-none', !(esDebCred && permiteCuotas));
+
+    editIndex = index;
+  }
+
+  function eliminarFila(index, btn) {
+    conceptosAgregados.splice(index, 1);
+    btn.closest('tr').remove();
+    conceptosJSON.value = JSON.stringify(conceptosAgregados);
+  }
+
+  guardarForm.addEventListener('submit', e => {
+    conceptosJSON.value = JSON.stringify(conceptosAgregados);
+    if (conceptosAgregados.length === 0) {
+      e.preventDefault();
+      alert("Debes agregar al menos un concepto.");
+    }
+  });
+
+  // 🔁 Precargar conceptos desde la vista
+  const precargados = {{ conceptos_actuales_json|safe }};
+
+  for (let i = 0; i < precargados.length; i++) {
+    const concepto = precargados[i];
+    const selectedOption = conceptosSelect.querySelector(`option[value="${concepto.id_concepto}"]`);
+    const conceptoText = selectedOption ? selectedOption.dataset.descripcion : 'Desconocido';
+
+    conceptosAgregados.push(concepto);
+    const row = tabla.insertRow();
+    row.innerHTML = filaHTML(conceptoText, concepto.monto, concepto.mes, concepto.anho, i);
+  }
+
+  conceptosJSON.value = JSON.stringify(conceptosAgregados);
+</script>
+
+</body>
+</html>

@@ -1,13 +1,16 @@
 from django.shortcuts import render, get_object_or_404,redirect
 from empleado.models import Empleado
-from liquidacion.models import Concepto, ConceptoLiquidacion,Liquidacion
+from liquidacion.models import Concepto, ConceptoLiquidacion, DebCredMes, ConcEmpLiquidacion, Liquidacion
 from liquidacion.forms import ConceptoForm
 from django.contrib.auth.decorators import login_required
 import json
 from datetime import date
 from django.contrib import messages
 from .services import calcular_sueldo_detallado
-
+import json
+from django.http import JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
 
 # Vista para listar empleados
 def listar_empleados_reporte(request):
@@ -76,49 +79,6 @@ def eliminar_concepto(request, pk):
         return redirect('listar_conceptos')
     return render(request, 'concepto/eliminar_concepto.html', {'concepto': concepto})
 
-# Vistas para cargar concepto por empleado 
-def cargar_conceptos_empleado(request, empleado_id):
-    empleado = get_object_or_404(Empleado, pk=empleado_id)
-    conceptos = Concepto.objects.all()
-    return render(request, 'liquidacion/cargar_conceptos.html', {
-        'empleado': empleado,
-        'conceptos': conceptos
-    })
-
-def guardar_conceptos(request, empleado_id):
-     if request.method == 'POST':
-        conceptos_str = request.POST.get('conceptos_json', '').strip()
-        if not conceptos_str:
-            messages.error(request, "No se cargaron conceptos.")
-            return redirect('cargar_conceptos_empleado', empleado_id=empleado_id)
-
-        try:
-            conceptos_data = json.loads(conceptos_str)
-        except json.JSONDecodeError:
-            messages.error(request, "Error al procesar los conceptos enviados.")
-            return redirect('cargar_conceptos_empleado', empleado_id=empleado_id)
-
-        empleado = get_object_or_404(Empleado, pk=empleado_id)
-
-        liquidacion = Liquidacion.objects.create(
-            fecha_liquidacion=date.today(),
-            fecha_pago=date.today(),
-            mes_liquidacion=date.today().month,
-            anho_liquidacion=date.today().year,
-            id_empleado=empleado
-        )
-
-        for item in conceptos_data:
-            concepto = Concepto.objects.get(pk=item['id_concepto'])
-            monto = item['monto']
-            ConceptoLiquidacion.objects.create(
-                id_concepto=concepto,
-                id_liquidacion=liquidacion,
-                monto_concepto=monto
-            )
-
-        messages.success(request, "Conceptos guardados correctamente.")
-        return redirect('ver_nomina_empleado', empleado_id=empleado.id_empleado)
 
 # Vistas para gestionar nominas 
 def gestionar_nominas(request):
@@ -126,10 +86,11 @@ def gestionar_nominas(request):
 
 def listar_empleados_para_concepto(request):
     empleados = Empleado.objects.all()
-    return render(request, 'liquidacion/lista_empleados_concepto.html', {
+    return render(request, 'liquidacion/listar_empleados_para_concepto.html', {
         'empleados': empleados
     })
 
+@login_required
 def generar_nomina(request):
     cedula = request.GET.get("cedula")
     if cedula:
@@ -137,9 +98,42 @@ def generar_nomina(request):
     else:
         empleados = Empleado.objects.all()
 
+    # Obtener mes y año seleccionados desde GET o valores por defecto
+    mes = int(request.GET.get("mes", 6))
+    anho = int(request.GET.get("anho", 2025))
+
     nominas = []
     for emp in empleados:
-        datos = calcular_sueldo_detallado(emp.id_empleado)
+        datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+
+        # Crear la liquidación
+        liquidacion = Liquidacion.objects.create(
+            fecha_liquidacion=date.today(),
+            fecha_pago=date.today(),
+            mes_liquidacion=mes,
+            anho_liquidacion=anho
+        )
+
+        # Crear concepto de sueldo base como ConceptoLiquidacion
+        concepto_base = ConceptoLiquidacion.objects.create(
+            id_empleado=emp,
+            id_concepto=None,
+            monto=datos['salario_base']
+        )
+        ConcEmpLiquidacion.objects.create(
+            id_liquidacion=liquidacion,
+            id_concepto_liquidacion=concepto_base
+        )
+
+        # Agregar conceptos asociados del empleado
+        conceptos_asociados = ConceptoLiquidacion.objects.filter(id_empleado=emp)
+        for concepto in conceptos_asociados:
+            if concepto.id_concepto is not None:
+                ConcEmpLiquidacion.objects.create(
+                    id_liquidacion=liquidacion,
+                    id_concepto_liquidacion=concepto
+                )
+
         nominas.append({
             'empleado': emp,
             'salario': datos['salario_base'],
@@ -151,4 +145,77 @@ def generar_nomina(request):
     return render(request, 'liquidacion/generar_nomina.html', {
         'nominas': nominas,
         'cedula': cedula or ''
+    })
+
+# Cargar conceptos por empleado 
+@login_required
+def editar_conceptos_empleado(request, empleado_id):
+    empleado = get_object_or_404(Empleado, pk=empleado_id)
+    conceptos = Concepto.objects.all()
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.POST.get('conceptos_json', '[]'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Datos inválidos'}, status=400)
+
+        with transaction.atomic():
+            ids_guardados = []
+
+            for item in data:
+                id_concepto = item.get('id_concepto')
+                monto = item.get('monto')
+                mes = item.get('mes') or None
+                anho = item.get('anho') or None
+
+                concepto = get_object_or_404(Concepto, pk=id_concepto)
+
+                cl, created = ConceptoLiquidacion.objects.update_or_create(
+                    id_empleado=empleado,
+                    id_concepto=concepto,
+                    defaults={'monto': monto}
+                )
+                ids_guardados.append(concepto.id_concepto)
+
+                if concepto.es_deb_cred and concepto.permite_cuotas and mes and anho:
+                    DebCredMes.objects.update_or_create(
+                        id_empleado=empleado.id_empleado,
+                        id_concepto=concepto,
+                        defaults={"mes": mes, "anho": anho}
+                    )
+                else:
+                    DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).delete()
+
+            # Eliminar los conceptos que fueron removidos manualmente
+            ConceptoLiquidacion.objects.filter(
+                id_empleado=empleado
+            ).exclude(id_concepto__id_concepto__in=ids_guardados).delete()
+
+        return redirect('gestionar_nominas')
+
+    # GET
+    conceptos_actuales_qs = ConceptoLiquidacion.objects.filter(id_empleado=empleado)
+    conceptos_actuales = []
+
+    for cl in conceptos_actuales_qs:
+        concepto = cl.id_concepto
+        registro = {
+            "id_concepto": concepto.id_concepto,
+            "monto": float(cl.monto),
+            "mes": None,
+            "anho": None,
+        }
+
+        if concepto.es_deb_cred and concepto.permite_cuotas:
+            cuotas = DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).first()
+            if cuotas:
+                registro["mes"] = cuotas.mes
+                registro["anho"] = cuotas.anho
+
+        conceptos_actuales.append(registro)
+
+    return render(request, 'liquidacion/editar_conceptos.html', {
+        'empleado': empleado,
+        'conceptos': conceptos,
+        'conceptos_actuales_json': json.dumps(conceptos_actuales, cls=DjangoJSONEncoder)
     })

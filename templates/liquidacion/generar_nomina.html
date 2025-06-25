@@ -6,27 +6,37 @@
 <div class="container">
 
     <!-- Fila 1: Selección de período -->
-    <div class="row mb-4">
+    <form method="get" class="row mb-4">
         <div class="col-md-4">
             <label for="mes">Mes</label>
-            <select id="mes" class="form-control">
-                <option>Enero</option>
-                <option>Febrero</option>
-                <option>Marzo</option>
-                <!-- ... -->
+            <select id="mes" name="mes" class="form-control">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
             </select>
+
         </div>
         <div class="col-md-4">
             <label for="anho">Año</label>
-            <select id="anho" class="form-control">
-                <option>2025</option>
-                <option>2024</option>
+            <select id="anho" name="anho" class="form-control">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
             </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100" style="background-color:#9c27b0;">Generar Nómina</button>
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#9c27b0;">Generar Nómina</button>
         </div>
-    </div>
+    </form>
+
 
     <!-- Fila 2: Buscar por cédula -->
     <form method="get" class="mb-4">

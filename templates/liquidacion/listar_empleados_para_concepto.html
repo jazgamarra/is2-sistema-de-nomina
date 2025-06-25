@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="text-center mb-4">Seleccionar Empleado para Cargar Conceptos</h2>
+<h2 class="text-center mb-4">Seleccionar Empleado para Editar Conceptos</h2>
 
 <div class="table-responsive">
     <table class="table table-bordered table-striped shadow-sm">
@@ -18,8 +18,8 @@
                 <td>{{ empleado.nombres }}</td>
                 <td>{{ empleado.apellidos }}</td>
                 <td>
-                    <a href="{% url 'cargar_conceptos_empleado' empleado.id_empleado %}" class="btn btn-sm btn-cargar">
-                        Cargar Conceptos
+                    <a href="{% url 'editar_conceptos_empleado' empleado.id_empleado %}" class="btn btn-sm btn-cargar">
+                        Editar Conceptos
                     </a>
                     <a href="{% url 'ver_nomina_empleado' empleado.id_empleado %}" class="btn btn-cargar btn-sm">
                         Ver Nómina

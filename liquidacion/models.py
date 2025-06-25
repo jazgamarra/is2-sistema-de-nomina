@@ -7,7 +7,6 @@ class Liquidacion(models.Model):
     fecha_pago = models.DateField()
     mes_liquidacion = models.IntegerField()
     anho_liquidacion = models.IntegerField()
-    id_empleado = models.ForeignKey(Empleado, models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
 
     class Meta:
         
@@ -24,19 +23,28 @@ class Concepto(models.Model):
 
     class Meta:
         
-        db_table = 'concepto'
+          db_table = 'concepto'
     
     def __str__(self):
         return self.descripcion 
 
 class ConceptoLiquidacion(models.Model):
-    id_liquidacion = models.ForeignKey('Liquidacion', models.DO_NOTHING, db_column='id_liquidacion', blank=True, null=True)
+    id_concepto_liquidacion = models.AutoField(primary_key=True)
+    id_empleado = models.ForeignKey(Empleado, models.DO_NOTHING, db_column='id_empleado', blank=True, null=True)
     id_concepto = models.ForeignKey(Concepto, models.DO_NOTHING, db_column='id_concepto', blank=True, null=True)
-    monto_concepto = models.DecimalField(max_digits=20, decimal_places=5)
+    monto = models.DecimalField(max_digits=20, decimal_places=5)
+
+    class Meta:
+
+        db_table = 'concepto_liquidacion'
+
+class ConcEmpLiquidacion(models.Model):
+    id_liquidacion = models.ForeignKey(Liquidacion, models.DO_NOTHING, db_column='id_liquidacion', blank=True, null=True)
+    id_concepto_liquidacion = models.ForeignKey(ConceptoLiquidacion, models.DO_NOTHING, db_column='id_concepto_liquidacion', blank=True, null=True)
 
     class Meta:
         
-        db_table = 'concepto_liquidacion'
+        db_table = 'conc_emp_liquidacion'
 
 class DebCredMes(models.Model):
     id = models.IntegerField(primary_key=True)
