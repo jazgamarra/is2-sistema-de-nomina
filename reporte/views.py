@@ -54,7 +54,7 @@ def dashboard_general(request):
         item['total'] = item['ingresos'] - item['descuentos']
 
     # Datos para gráfico: distribución de conceptos
-    distribucion_conceptos = (
+    distribucion_conceptos = list(
         DebCredMes.objects
         .filter(mes=mes, anho=anho)
         .values('id_concepto__descripcion')
@@ -63,7 +63,7 @@ def dashboard_general(request):
     )
 
     # Datos para gráfico: acumulado por empleado
-    acumulado_empleados = (
+    acumulado_empleados = list(
         DebCredMes.objects
         .filter(mes=mes, anho=anho)
         .values('id_empleado')
@@ -71,10 +71,12 @@ def dashboard_general(request):
         .order_by('-total')
     )
 
+    # Mapeamos nombres
     empleados_map = {
         e.id_empleado: f"{e.nombres} {e.apellidos}"
         for e in Empleado.objects.all()
     }
+
     for e in acumulado_empleados:
         e['nombre'] = empleados_map.get(e['id_empleado'], 'Desconocido')
 
