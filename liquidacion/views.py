@@ -164,47 +164,47 @@ def editar_conceptos_empleado(request, empleado_id):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Datos inválidos'}, status=400)
 
+        if not data:
+            messages.warning(request, "No se cargaron conceptos.")
+            return redirect(request.path)
+
         with transaction.atomic():
+            ids_guardados = []
+
             for item in data:
                 id_concepto = item.get('id_concepto')
                 monto = item.get('monto')
                 mes = item.get('mes') or None
                 anho = item.get('anho') or None
 
-                if not id_concepto or monto is None:
-                    continue  # Saltar si falta algún dato clave
-
                 concepto = get_object_or_404(Concepto, pk=id_concepto)
 
-                # Guardar o actualizar ConceptoLiquidacion
-                ConceptoLiquidacion.objects.update_or_create(
+                cl, created = ConceptoLiquidacion.objects.update_or_create(
                     id_empleado=empleado,
                     id_concepto=concepto,
                     defaults={'monto': monto}
                 )
+                ids_guardados.append(concepto.id_concepto)
 
-                # Guardar o borrar cuotas si corresponde
                 if concepto.es_deb_cred and concepto.permite_cuotas and mes and anho:
                     DebCredMes.objects.update_or_create(
                         id_empleado=empleado.id_empleado,
                         id_concepto=concepto,
                         defaults={"mes": mes, "anho": anho}
                     )
-                else:
-                    DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).delete()
 
-        return redirect('gestionar_nominas')
+            messages.success(request, "Conceptos guardados correctamente.")
+            return redirect(request.path)
 
-    # GET: cargar conceptos existentes
+    # GET
     conceptos_actuales_qs = ConceptoLiquidacion.objects.filter(id_empleado=empleado)
     conceptos_actuales = []
 
     for cl in conceptos_actuales_qs:
         concepto = cl.id_concepto
-        if not concepto:
-            continue  # Evitar fallos por registros sin concepto
-
-        registro = {    
+        if concepto is None:
+            continue
+        registro = {
             "id_concepto": concepto.id_concepto,
             "monto": float(cl.monto),
             "mes": None,
@@ -214,7 +214,7 @@ def editar_conceptos_empleado(request, empleado_id):
         if concepto.es_deb_cred and concepto.permite_cuotas:
             cuotas = DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).first()
             if cuotas:
-                registro["mes"] = cuotas.mes    
+                registro["mes"] = cuotas.mes
                 registro["anho"] = cuotas.anho
 
         conceptos_actuales.append(registro)
