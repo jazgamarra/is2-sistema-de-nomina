@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-5">📊 Dashboard General — {{ mes }}/{{ anho }}</h2>
+
+  <!-- 1. Costos Mensuales por Empleado -->
+  <div class="mb-5">
+    <h4>1. Costos Mensuales por Empleado</h4>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Ingresos</th>
+            <th>Descuentos</th>
+            <th>Total Neto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in costos_por_empleado %}
+          <tr>
+            <td>{{ item.empleado }}</td>
+            <td class="text-success">+{{ item.ingresos|floatformat:2 }}</td>
+            <td class="text-danger">-{{ item.descuentos|floatformat:2 }}</td>
+            <td><strong>{{ item.total|floatformat:2 }}</strong></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">No hay datos disponibles.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. Distribución de Conceptos -->
+  <div class="mb-5">
+    <h4>2. Distribución de Conceptos ({{ mes }}/{{ anho }})</h4>
+    <canvas id="conceptosChart" height="150"></canvas>
+  </div>
+
+  <!-- 3. Costos por Empleado Acumulado -->
+  <div>
+    <h4>3. Costos por Empleado Acumulado</h4>
+    <canvas id="empleadosChart" height="150"></canvas>
+  </div>
+
+  <!-- Pasamos los datos seguros a JS -->
+  {{ distribucion_conceptos|json_script:"jsonConceptos" }}
+  {{ acumulado_empleados|json_script:"jsonEmpleados" }}
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const conceptosParsed = JSON.parse(document.getElementById('jsonConceptos').textContent);
+  const empleadosParsed = JSON.parse(document.getElementById('jsonEmpleados').textContent);
+
+  const conceptosData = {
+    labels: conceptosParsed.map(c => c.id_concepto__descripcion),
+    datasets: [{
+      label: 'Monto total por concepto',
+      data: conceptosParsed.map(c => c.total),
+      backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  const empleadosData = {
+    labels: empleadosParsed.map(e => e.nombre),
+    datasets: [{
+      label: 'Costo Total',
+      data: empleadosParsed.map(e => e.total),
+      backgroundColor: 'rgba(255, 99, 132, 0.6)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  new Chart(document.getElementById('conceptosChart'), {
+    type: 'bar',
+    data: conceptosData,
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('empleadosChart'), {
+    type: 'bar',
+    data: empleadosData,
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}
