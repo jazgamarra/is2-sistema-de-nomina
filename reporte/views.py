@@ -36,6 +36,9 @@ def dashboard_general(request):
         concepto = cl.id_concepto
         monto = cl.monto
 
+        if concepto is None:
+            continue  # Ignorar conceptos sin referencia válida
+
         if empleado.id_empleado not in costos_por_empleado:
             costos_por_empleado[empleado.id_empleado] = {
                 'empleado': f"{empleado.nombres} {empleado.apellidos}",

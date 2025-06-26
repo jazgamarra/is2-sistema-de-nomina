@@ -116,6 +116,12 @@ def generar_nomina(request):
 
     # Si el usuario envió POST para guardar nómina
     if request.method == "POST" and mes and anho:
+        try:
+            concepto_salario = Concepto.objects.get(descripcion__iexact="salario")
+        except Concepto.DoesNotExist:
+            messages.error(request, "No se encontró el concepto 'salario'. Crealo antes de generar la nómina.")
+            return redirect("gestionar_nominas")
+
         for emp in empleados:
             datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
 
@@ -128,7 +134,7 @@ def generar_nomina(request):
 
             concepto_base = ConceptoLiquidacion.objects.create(
                 id_empleado=emp,
-                id_concepto=None,
+                id_concepto=concepto_salario,  # ✅ CORREGIDO
                 monto=datos['salario_base']
             )
             ConcEmpLiquidacion.objects.create(
@@ -151,6 +157,7 @@ def generar_nomina(request):
         'mes': mes,
         'anho': anho
     })
+
 
 # Cargar conceptos por empleado 
 @login_required
