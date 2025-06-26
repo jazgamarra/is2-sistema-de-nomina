@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from num2words import num2words
+from django.utils.timezone import now
 
 # Vista para listar empleados
 def listar_empleados_reporte(request):
@@ -361,7 +362,9 @@ def descargar_recibo_pdf(request, empleado_id, liquidacion_id):
         'descuentos': descuentos,
         'sueldo_base': sueldo_base_val,
         'neto': neto,
-        'neto_letras': neto_letras
+        'neto_letras': neto_letras,
+        'usuario': request.user,
+        'timestamp': now()
     })
 
     pdf = pdfkit.from_string(html, False)

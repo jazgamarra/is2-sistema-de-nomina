@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'liquidacion',
     'contrato',
     'reporte',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

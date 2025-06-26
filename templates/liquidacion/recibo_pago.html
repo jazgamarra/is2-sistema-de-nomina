@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block content %}
 <div class="container mt-4">
   <h3>Recibo de Pago - {{ empleado.nombres }} {{ empleado.apellidos }}</h3>
@@ -20,36 +21,61 @@
     </div>
   </form>
 
-  {% if selected_id %}
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5>Desglose del Recibo</h5>
-      <p><strong>Sueldo base:</strong> {{ sueldo_base }} Gs</p>
+ {% if selected_id %}
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="mb-3">Desglose del Recibo de pago de {{ empleado.nombres }} {{ empleado.apellidos }} </h5>
 
-      <h6>Ingresos</h6>
-      <ul>
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Concepto</th>
+          <th class="text-end">Acreditaciones (Gs)</th>
+          <th class="text-end">Descuentos (Gs)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sueldo Base</td>
+          <td class="text-end">{{ sueldo_base|floatformat:0|intcomma }}</td>
+          <td></td>
+        </tr>
+
         {% for desc, monto in ingresos %}
-        <li>{{ desc }}: {{ monto }} Gs</li>
-        {% empty %}
-        <li>No hay ingresos adicionales.</li>
+        <tr>
+          <td>{{ desc }}</td>
+          <td class="text-end">{{ monto|floatformat:0|intcomma }}</td>
+          <td></td>
+        </tr>
         {% endfor %}
-      </ul>
 
-      <h6>Descuentos</h6>
-      <ul>
         {% for desc, monto in descuentos %}
-        <li>{{ desc }}: {{ monto }} Gs</li>
-        {% empty %}
-        <li>No hay descuentos.</li>
+        <tr>
+          <td>{{ desc }}</td>
+          <td></td>
+          <td class="text-end">{{ monto|floatformat:0|intcomma }}</td>
+        </tr>
         {% endfor %}
-      </ul>
 
-      <p><strong>Total Neto:</strong> {{ neto }} Gs</p>
-      <p><strong>En letras:</strong> {{ neto_letras }}</p>
+        {% if not ingresos and not descuentos %}
+        <tr>
+          <td colspan="3" class="text-center">No se registraron ingresos ni descuentos.</td>
+        </tr>
+        {% endif %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <th class="text-end">Total Neto</th>
+          <th colspan="2" class="text-end">{{ neto|floatformat:0|intcomma }} Gs</th>
+        </tr>
+        <tr>
+          <th colspan="3" class="text-center">({{ neto_letras }})</th>
+        </tr>
+      </tfoot>
+    </table>
 
-      <a href="{% url 'descargar_recibo_pdf' empleado.id_empleado selected_id %}" class="btn btn-success">Descargar PDF</a>
-    </div>
+    <a href="{% url 'descargar_recibo_pdf' empleado.id_empleado selected_id %}" class="btn btn-success">Descargar PDF</a>
   </div>
-  {% endif %}
 </div>
-{% endblock %}
+{% endif %}
+{% endblock%}
