@@ -16,4 +16,8 @@ urlpatterns = [
     path('empleado/<int:empleado_id>/editar-conceptos/', views.editar_conceptos_empleado, name='editar_conceptos_empleado'),
     path('empleados/editar-conceptos/', views.listar_empleados_para_concepto, name='listar_empleados_para_concepto'),
     path('empleado/<int:empleado_id>/ver-nomina/', views.ver_nomina_empleado, name='ver_nomina_empleado'),
+    # rutas para generar recibos de pago
+    path('empleado/<int:empleado_id>/recibos/', views.recibo_pago, name='recibo_pago'),
+    path('empleado/<int:empleado_id>/recibos/<int:liquidacion_id>/pdf/', views.descargar_recibo_pdf, name='descargar_recibo_pdf'),
+
 ]

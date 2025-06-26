@@ -8,7 +8,7 @@ class Liquidacion(models.Model):
     mes_liquidacion = models.IntegerField()
     anho_liquidacion = models.IntegerField()
 
-    class Meta:
+    class Meta: 
         
         db_table = 'liquidacion'
 

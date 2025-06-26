@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Recibo de Pago - {{ empleado.nombres }} {{ empleado.apellidos }}</h3>
+
+  <form method="get" class="row mb-4">
+    <div class="col-md-6">
+      <label for="liquidacion_id">Seleccionar Nómina</label>
+      <select name="liquidacion_id" id="liquidacion_id" class="form-select" required>
+        <option value="">-- Seleccione --</option>
+        {% for liq in liquidaciones %}
+          <option value="{{ liq.id_liquidacion }}" {% if liq.id_liquidacion|stringformat:"s" == selected_id %}selected{% endif %}>
+            {{ liq.mes_liquidacion }}/{{ liq.anho_liquidacion }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary">Previsualizar</button>
+    </div>
+  </form>
+
+  {% if selected_id %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Desglose del Recibo</h5>
+      <p><strong>Sueldo base:</strong> {{ sueldo_base }} Gs</p>
+
+      <h6>Ingresos</h6>
+      <ul>
+        {% for desc, monto in ingresos %}
+        <li>{{ desc }}: {{ monto }} Gs</li>
+        {% empty %}
+        <li>No hay ingresos adicionales.</li>
+        {% endfor %}
+      </ul>
+
+      <h6>Descuentos</h6>
+      <ul>
+        {% for desc, monto in descuentos %}
+        <li>{{ desc }}: {{ monto }} Gs</li>
+        {% empty %}
+        <li>No hay descuentos.</li>
+        {% endfor %}
+      </ul>
+
+      <p><strong>Total Neto:</strong> {{ neto }} Gs</p>
+      <p><strong>En letras:</strong> {{ neto_letras }}</p>
+
+      <a href="{% url 'descargar_recibo_pdf' empleado.id_empleado selected_id %}" class="btn btn-success">Descargar PDF</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

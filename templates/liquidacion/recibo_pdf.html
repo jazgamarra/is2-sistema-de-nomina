@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recibo de Pago</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; }
+        h3 { text-align: center; }
+        .section { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h3>Recibo de Pago</h3>
+    <p><strong>Empleado:</strong> {{ empleado.nombres }} {{ empleado.apellidos }}</p>
+    <p><strong>Mes/Año:</strong> {{ liquidacion.mes }}/{{ liquidacion.anho }}</p>
+
+    <div class="section">
+        <p><strong>Sueldo Base:</strong> {{ sueldo_base }} Gs</p>
+        <p><strong>Ingresos:</strong></p>
+        <ul>
+            {% for desc, monto in ingresos %}
+            <li>{{ desc }}: {{ monto }} Gs</li>
+            {% endfor %}
+        </ul>
+
+        <p><strong>Descuentos:</strong></p>
+        <ul>
+            {% for desc, monto in descuentos %}
+            <li>{{ desc }}: {{ monto }} Gs</li>
+            {% endfor %}
+        </ul>
+
+        <p><strong>Total Neto:</strong> {{ neto }} Gs</p>
+        <p><strong>En letras:</strong> {{ neto_letras }}</p>
+    </div>
+</body>
+</html>

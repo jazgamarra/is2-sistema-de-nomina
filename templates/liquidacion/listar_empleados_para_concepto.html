@@ -24,6 +24,10 @@
                     <a href="{% url 'ver_nomina_empleado' empleado.id_empleado %}" class="btn btn-cargar btn-sm">
                         Ver Nómina
                     </a>
+                    <a href="{% url 'recibo_pago' empleado.id_empleado %}" class="btn btn-cargar btn-sm">
+                        Generar Recibos
+                    </a>
+
                 </td>
             </tr>
             {% empty %}
