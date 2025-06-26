@@ -71,3 +71,19 @@ def calcular_sueldo_detallado(id_empleado):
         'descuentos': descuentos,
         'sueldo_total': sueldo_total
     }
+
+def generar_datos_nomina_todos():
+    empleados = Empleado.objects.all()
+    nominas = []
+
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+
+    return nominas
