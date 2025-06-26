@@ -92,59 +92,64 @@ def listar_empleados_para_concepto(request):
 
 @login_required
 def generar_nomina(request):
+    empleados = Empleado.objects.all()
     cedula = request.GET.get("cedula")
     if cedula:
-        empleados = Empleado.objects.filter(cedula=cedula)
-    else:
-        empleados = Empleado.objects.all()
-
-    # Obtener mes y año seleccionados desde GET o valores por defecto
-    mes = int(request.GET.get("mes", 6))
-    anho = int(request.GET.get("anho", 2025))
+        empleados = empleados.filter(cedula=cedula)
 
     nominas = []
-    for emp in empleados:
-        datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+    mes = request.GET.get("mes")
+    anho = request.GET.get("anho")
 
-        # Crear la liquidación
-        liquidacion = Liquidacion.objects.create(
-            fecha_liquidacion=date.today(),
-            fecha_pago=date.today(),
-            mes_liquidacion=mes,
-            anho_liquidacion=anho
-        )
+    if mes and anho:
+        mes = int(mes)
+        anho = int(anho)
+        for emp in empleados:
+            datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+            nominas.append({
+                'empleado': emp,
+                'salario': datos['salario_base'],
+                'bonos': datos['bonificaciones'],
+                'descuentos': datos['descuentos'],
+                'total': datos['sueldo_total'],
+            })
 
-        # Crear concepto de sueldo base como ConceptoLiquidacion
-        concepto_base = ConceptoLiquidacion.objects.create(
-            id_empleado=emp,
-            id_concepto=None,
-            monto=datos['salario_base']
-        )
-        ConcEmpLiquidacion.objects.create(
-            id_liquidacion=liquidacion,
-            id_concepto_liquidacion=concepto_base
-        )
+    # Si el usuario envió POST para guardar nómina
+    if request.method == "POST" and mes and anho:
+        for emp in empleados:
+            datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
 
-        # Agregar conceptos asociados del empleado
-        conceptos_asociados = ConceptoLiquidacion.objects.filter(id_empleado=emp)
-        for concepto in conceptos_asociados:
-            if concepto.id_concepto is not None:
+            liquidacion = Liquidacion.objects.create(
+                fecha_liquidacion=date.today(),
+                fecha_pago=date.today(),
+                mes_liquidacion=mes,
+                anho_liquidacion=anho
+            )
+
+            concepto_base = ConceptoLiquidacion.objects.create(
+                id_empleado=emp,
+                id_concepto=None,
+                monto=datos['salario_base']
+            )
+            ConcEmpLiquidacion.objects.create(
+                id_liquidacion=liquidacion,
+                id_concepto_liquidacion=concepto_base
+            )
+
+            conceptos_asociados = ConceptoLiquidacion.objects.filter(id_empleado=emp)
+            for concepto in conceptos_asociados:
                 ConcEmpLiquidacion.objects.create(
                     id_liquidacion=liquidacion,
                     id_concepto_liquidacion=concepto
                 )
 
-        nominas.append({
-            'empleado': emp,
-            'salario': datos['salario_base'],
-            'bonos': datos['bonificaciones'],
-            'descuentos': datos['descuentos'],
-            'total': datos['sueldo_total'],
-        })
+        messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
 
-    return render(request, 'liquidacion/generar_nomina.html', {
+    return render(request, "liquidacion/generar_nomina.html", {
         'nominas': nominas,
-        'cedula': cedula or ''
+        'cedula': cedula or '',
+        'mes': mes,
+        'anho': anho
     })
 
 # Cargar conceptos por empleado 
@@ -160,23 +165,25 @@ def editar_conceptos_empleado(request, empleado_id):
             return JsonResponse({'error': 'Datos inválidos'}, status=400)
 
         with transaction.atomic():
-            ids_guardados = []
-
             for item in data:
                 id_concepto = item.get('id_concepto')
                 monto = item.get('monto')
                 mes = item.get('mes') or None
                 anho = item.get('anho') or None
 
+                if not id_concepto or monto is None:
+                    continue  # Saltar si falta algún dato clave
+
                 concepto = get_object_or_404(Concepto, pk=id_concepto)
 
-                cl, created = ConceptoLiquidacion.objects.update_or_create(
+                # Guardar o actualizar ConceptoLiquidacion
+                ConceptoLiquidacion.objects.update_or_create(
                     id_empleado=empleado,
                     id_concepto=concepto,
                     defaults={'monto': monto}
                 )
-                ids_guardados.append(concepto.id_concepto)
 
+                # Guardar o borrar cuotas si corresponde
                 if concepto.es_deb_cred and concepto.permite_cuotas and mes and anho:
                     DebCredMes.objects.update_or_create(
                         id_empleado=empleado.id_empleado,
@@ -186,20 +193,18 @@ def editar_conceptos_empleado(request, empleado_id):
                 else:
                     DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).delete()
 
-            # Eliminar los conceptos que fueron removidos manualmente
-            ConceptoLiquidacion.objects.filter(
-                id_empleado=empleado
-            ).exclude(id_concepto__id_concepto__in=ids_guardados).delete()
-
         return redirect('gestionar_nominas')
 
-    # GET
+    # GET: cargar conceptos existentes
     conceptos_actuales_qs = ConceptoLiquidacion.objects.filter(id_empleado=empleado)
     conceptos_actuales = []
 
     for cl in conceptos_actuales_qs:
         concepto = cl.id_concepto
-        registro = {
+        if not concepto:
+            continue  # Evitar fallos por registros sin concepto
+
+        registro = {    
             "id_concepto": concepto.id_concepto,
             "monto": float(cl.monto),
             "mes": None,
@@ -209,7 +214,7 @@ def editar_conceptos_empleado(request, empleado_id):
         if concepto.es_deb_cred and concepto.permite_cuotas:
             cuotas = DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).first()
             if cuotas:
-                registro["mes"] = cuotas.mes
+                registro["mes"] = cuotas.mes    
                 registro["anho"] = cuotas.anho
 
         conceptos_actuales.append(registro)
