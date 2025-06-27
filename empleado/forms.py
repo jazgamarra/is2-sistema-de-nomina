@@ -25,16 +25,25 @@ class EmpleadoForm(forms.ModelForm):
             'nombres': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese los nombres'}),
             'apellidos': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese los apellidos'}),
             'cedula': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese la cédula'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Seleccione la fecha de nacimiento', 'type': 'date'}),
+            'fecha_nacimiento': forms.DateInput(
+                attrs={'class': 'form-control', 'placeholder': 'Seleccione la fecha de nacimiento', 'type': 'date'},
+                format='%Y-%m-%d'),            
             'telefono': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el teléfono'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese el email'}),
-            'fecha_ingreso': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'Seleccione la fecha de ingreso', 'type': 'date'}),
+            'fecha_ingreso': forms.DateInput(
+                attrs={'class': 'form-control', 'placeholder': 'Seleccione la fecha de ingreso', 'type': 'date'},
+                format='%Y-%m-%d'),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'id_departamento': forms.Select(attrs={'class': 'form-control'}),
             'id_cargo': forms.Select(attrs={'class': 'form-control'}),
             'hijos_menores_18': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cantidad de hijos menores de 18'}),
             'aplica_ips': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['fecha_nacimiento'].input_formats = ['%Y-%m-%d']
+        self.fields['fecha_ingreso'].input_formats = ['%Y-%m-%d']
 
     # 🚨 Validar nombres y apellidos (evitar inyección SQL y caracteres extraños)
     def clean_nombres(self):

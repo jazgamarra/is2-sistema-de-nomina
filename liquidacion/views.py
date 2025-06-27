@@ -190,11 +190,14 @@ def editar_conceptos_empleado(request, empleado_id):
 
                 if concepto.es_deb_cred and concepto.permite_cuotas and mes and anho:
                     DebCredMes.objects.update_or_create(
-                        id_empleado=empleado.id_empleado,
-                        id_concepto=concepto,
-                        defaults={"mes": mes, "anho": anho}
-                    )
-
+                         id_empleado=empleado.id_empleado,
+                         id_concepto=concepto,
+                         defaults={
+                            "mes": mes,
+                            "anho": anho,
+                            "monto": monto  # FALTABA ESTA LÍNEA
+                        }
+                )
             messages.success(request, "Conceptos guardados correctamente.")
             return redirect(request.path)
 

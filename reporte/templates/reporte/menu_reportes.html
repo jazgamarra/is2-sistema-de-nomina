@@ -34,6 +34,24 @@
       background-color: #7c35b2;
       color: white;
     }
+
+     .btn-volver-menu {
+      background-color: white;
+      color: #9c4dcc;
+      border: 2px solid #9c4dcc;
+      border-radius: 50px;
+      padding: 10px 30px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: inline-block;
+    }
+
+    .btn-volver-menu:hover {
+      background-color: #9c4dcc;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -66,6 +84,10 @@
       </div>
     </div>
   </div>
+  <!-- Botón debajo de las tarjetas -->
+    <div class="text-center mt-5">
+      <a href="/" class="btn btn-volver-menu">Volver al Menú Principal</a>
+    </div>
 </body>
 </html>
 {% endblock %}
