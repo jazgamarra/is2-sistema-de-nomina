@@ -171,6 +171,57 @@ def generar_nomina(request):
         'anho': anho
     })
 
+@login_required
+def generar_pdf_nomina_listado(request):
+    from datetime import datetime
+    from django.template.loader import render_to_string
+    import pdfkit
+
+    mes = int(request.GET.get("mes"))
+    anho = int(request.GET.get("anho"))
+
+    empleados = Empleado.objects.filter(activo=True)
+    fecha_limite = date(anho, mes, 1)
+    empleados = [e for e in empleados if e.fecha_ingreso <= fecha_limite]
+
+    nominas = []
+    total_salario = total_bonos = total_descuentos = total_total = 0
+
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+        total_salario += datos['salario_base']
+        total_bonos += datos['bonificaciones']
+        total_descuentos += datos['descuentos']
+        total_total += datos['sueldo_total']
+
+    html = render_to_string("liquidacion/pdf/nomina_listado.html", {
+        'nominas': nominas,
+        'mes': mes,
+        'anho': anho,
+        'fecha_hora': datetime.now(),
+        'usuario': request.user,
+        'total_salario': total_salario,
+        'total_bonos': total_bonos,
+        'total_descuentos': total_descuentos,
+        'total_total': total_total
+    })
+
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
+
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f"attachment; filename=nomina_{mes}_{anho}.pdf"
+    return response
+
+
+
 # Cargar conceptos por empleado 
 @login_required
 def editar_conceptos_empleado(request, empleado_id):
