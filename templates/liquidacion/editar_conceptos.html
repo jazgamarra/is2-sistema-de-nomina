@@ -124,12 +124,10 @@
     const esDebCred = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.esDebCred === "1";
     const permiteCuotas = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.permiteCuotas === "1";
 
-    let mes = "", anho = "";
-    if (esDebCred && permiteCuotas) {
-      mes = parseInt(mesInput.value);
-      anho = parseInt(anhoInput.value);
-      if (!mes || !anho) return alert("Debe ingresar mes y año.");
-    }
+    const mes = parseInt(mesInput.value);
+    const anho = parseInt(anhoInput.value);
+
+    if (!mes || !anho) return alert("Debe ingresar mes y año.");
 
     const nuevoConcepto = { id_concepto: conceptoId, monto, mes, anho };
 
