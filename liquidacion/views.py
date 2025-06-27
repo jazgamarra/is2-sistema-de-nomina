@@ -162,7 +162,7 @@ def generar_nomina(request):
                 id_concepto_liquidacion=cl
             )
 
-    messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
+        messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
 
     return render(request, "liquidacion/generar_nomina.html", {
         'nominas': nominas,
