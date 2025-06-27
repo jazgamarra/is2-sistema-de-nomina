@@ -2,7 +2,30 @@
 
 {% block content %}
 <div class="container my-5">
-  <h2 class="text-center mb-5">📊 Dashboard General — {{ mes }}/{{ anho }}</h2>
+  <h2 class="text-center mb-4">📊 Dashboard General — {{ mes }}/{{ anho }}</h2>
+
+  <!-- Filtro -->
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label class="form-label">Mes</label>
+      <select name="mes" class="form-select">
+        {% for numero, nombre in meses %}
+          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Año</label>
+      <select name="anho" class="form-select">
+        {% for a in anhos %}
+          <option value="{{ a }}" {% if a == anho %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+  </form>
 
   <!-- 1. Costos Mensuales por Empleado -->
   <div class="mb-5">
@@ -35,7 +58,7 @@
 
   <!-- 2. Distribución de Conceptos -->
   <div class="mb-5">
-    <h4>2. Distribución de Conceptos ({{ mes }}/{{ anho }})</h4>
+    <h4>2. Distribución de Conceptos</h4>
     <canvas id="conceptosChart" height="150"></canvas>
   </div>
 
@@ -45,13 +68,13 @@
     <canvas id="empleadosChart" height="150"></canvas>
   </div>
 
-  <!-- Pasamos los datos seguros a JS -->
+  <!-- Datos JSON -->
   {{ distribucion_conceptos|json_script:"jsonConceptos" }}
   {{ acumulado_empleados|json_script:"jsonEmpleados" }}
+</div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const conceptosParsed = JSON.parse(document.getElementById('jsonConceptos').textContent);

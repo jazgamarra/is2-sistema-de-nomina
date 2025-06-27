@@ -5,9 +5,16 @@ from datetime import date
 from liquidacion.models import Liquidacion, ConceptoLiquidacion, Concepto, DebCredMes
 from empleado.models import Empleado
 from liquidacion.models import ConcEmpLiquidacion
+from calendar import month_name
 
 def menu_reportes(request):
     return render(request, 'reporte/menu_reportes.html')
+
+MESES_ES = [
+    (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+    (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+    (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+]
 
 def dashboard_general(request):
     hoy = date.today()
@@ -44,9 +51,9 @@ def dashboard_general(request):
                 'total': 0
             }
 
-        if concepto.es_deb_cred:  # descuento
+        if concepto and concepto.es_deb_cred:
             costos_por_empleado[empleado.id_empleado]['descuentos'] += float(monto)
-        else:  # ingreso
+        else:
             costos_por_empleado[empleado.id_empleado]['ingresos'] += float(monto)
 
     # Total neto por empleado
@@ -71,7 +78,7 @@ def dashboard_general(request):
         .order_by('-total')
     )
 
-    # Mapeamos nombres
+    # Mapeamos nombres de empleados
     empleados_map = {
         e.id_empleado: f"{e.nombres} {e.apellidos}"
         for e in Empleado.objects.all()
@@ -80,9 +87,15 @@ def dashboard_general(request):
     for e in acumulado_empleados:
         e['nombre'] = empleados_map.get(e['id_empleado'], 'Desconocido')
 
+    # Meses y años para el filtro
+    meses = MESES_ES
+    anhos = list(range(hoy.year, hoy.year - 6, -1))
+
     context = {
         'mes': mes,
         'anho': anho,
+        'meses': meses,
+        'anhos': anhos,
         'costos_por_empleado': list(costos_por_empleado.values()),
         'distribucion_conceptos': distribucion_conceptos,
         'acumulado_empleados': acumulado_empleados,

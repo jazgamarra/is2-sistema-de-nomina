@@ -5,7 +5,6 @@
 <div class="container my-5">
   <h2 class="text-center mb-4">📊 Dashboard de Conceptos — {{ mes }}/{{ anho }}</h2>
 
-  <!-- Filtro -->
   <form method="get" class="row g-3 mb-4">
     <div class="col-md-4">
       <label class="form-label">Mes</label>
@@ -28,7 +27,6 @@
     </div>
   </form>
 
-  <!-- KPIs -->
   <div class="row text-center mb-5">
     <div class="col-md-6">
       <div class="card shadow-sm">
@@ -48,7 +46,6 @@
     </div>
   </div>
 
-  <!-- 🟢 Tabla primero -->
   <div class="table-responsive mt-4 mb-5">
     <table class="table table-bordered table-striped">
       <thead>
@@ -70,7 +67,6 @@
     </table>
   </div>
 
-  <!-- 🔵 Gráficos después -->
   <div class="row">
     <div class="col-md-6 mb-4">
       <canvas id="barChart" height="300"></canvas>
