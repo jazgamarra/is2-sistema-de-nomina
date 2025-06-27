@@ -5,28 +5,48 @@
 
 <div class="container">
 
+   {% if messages and request.method != "GET" %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <!-- Fila 1: Selección de período -->
-    <div class="row mb-4">
+    <form method="get" class="row mb-4">
         <div class="col-md-4">
             <label for="mes">Mes</label>
-            <select id="mes" class="form-control">
-                <option>Enero</option>
-                <option>Febrero</option>
-                <option>Marzo</option>
-                <!-- ... -->
+            <select id="mes" name="mes" class="form-control">
+                <option value="">-- Seleccionar mes --</option>
+                <option value="1" {% if mes == 1 %}selected{% endif %}>Enero</option>
+                <option value="2" {% if mes == 2 %}selected{% endif %}>Febrero</option>
+                <option value="3" {% if mes == 3 %}selected{% endif %}>Marzo</option>
+                <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if mes == 5 %}selected{% endif %}>Mayo</option>
+                <option value="6" {% if mes == 6 %}selected{% endif %}>Junio</option>
+                <option value="7" {% if mes == 7 %}selected{% endif %}>Julio</option>
+                <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if mes == 9 %}selected{% endif %}>Septiembre</option>
+                <option value="10" {% if mes == 10 %}selected{% endif %}>Octubre</option>
+                <option value="11" {% if mes == 11 %}selected{% endif %}>Noviembre</option>
+                <option value="12" {% if mes == 12 %}selected{% endif %}>Diciembre</option>
             </select>
         </div>
         <div class="col-md-4">
             <label for="anho">Año</label>
-            <select id="anho" class="form-control">
-                <option>2025</option>
-                <option>2024</option>
+            <select id="anho" name="anho" class="form-control">
+                <option value="">-- Seleccionar año --</option>
+                <option value="2025" {% if anho == 2025 %}selected{% endif %}>2025</option>
+                <option value="2024" {% if anho == 2024 %}selected{% endif %}>2024</option>
             </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100" style="background-color:#9c27b0;">Generar Nómina</button>
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#9c27b0;">
+                Previsualizar Nómina
+            </button>
         </div>
-    </div>
+    </form>
 
     <!-- Fila 2: Buscar por cédula -->
     <form method="get" class="mb-4">
@@ -39,9 +59,20 @@
         </div>
     </form>
 
+    {% if nominas %}
     <!-- Lista de nómina generada -->
     <div class="mb-4">
-        <h5>Lista de Nómina Generada</h5>
+        <h5>
+            Lista de Nómina Generada para el período:
+            <strong>
+                {% if mes == 1 %}Enero{% elif mes == 2 %}Febrero{% elif mes == 3 %}Marzo
+                {% elif mes == 4 %}Abril{% elif mes == 5 %}Mayo{% elif mes == 6 %}Junio
+                {% elif mes == 7 %}Julio{% elif mes == 8 %}Agosto{% elif mes == 9 %}Septiembre
+                {% elif mes == 10 %}Octubre{% elif mes == 11 %}Noviembre{% elif mes == 12 %}Diciembre
+                {% endif %} / {{ anho }}
+            </strong>
+        </h5>
+
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -61,20 +92,41 @@
                     <td>{{ n.descuentos|floatformat:0 }} Gs</td>
                     <td>{{ n.total|floatformat:0 }} Gs</td>
                 </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center">No se encontraron resultados.</td>
-                </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
 
-    <!-- Botones finales -->
-    <div class="d-flex justify-content-between">
-        <button class="btn btn-secondary mb-5">Generar PDF</button>
-        <button class="btn btn-success mb-5">Confirmar Nómina</button>
+        <!-- Botones finales -->
+        <form method="post" class="d-flex justify-content-between">
+            {% csrf_token %}
+            <input type="hidden" name="mes" value="{{ mes }}">
+            <input type="hidden" name="anho" value="{{ anho }}">
+            <button type="submit" class="btn text-white mb-5" style="background-color:#9c27b0;"> Generar Nómina</button>
+            <button type="button" class="btn text-white mb-5" style="background-color:#9c27b0;"> Generar PDF</button>
+        </form>
+    </div>
+    {% endif %}
+    <div class="text-center mt-4">
+        <a href="{% url 'gestionar_nominas' %}" class="btn btn-volver-menu mb-5">Volver a Gestionar Nóminas </a>
     </div>
 </div>
 
+<style>
+    .btn-volver-menu {
+    background-color: white;
+    color: #9c4dcc;
+    border: 2px solid #9c4dcc;
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: inline-block;
+}
+.btn-volver-menu:hover {
+    background-color: #9c4dcc;
+    color: white;
+}
+</style>
 {% endblock %}

@@ -1,0 +1,104 @@
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin: 40px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    p {
+      margin: 5px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .text-end {
+      text-align: right;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Recibo de Pago</h2>
+
+  <p><strong>Empleado:</strong> {{ empleado.nombres }} {{ empleado.apellidos }}</p>
+  <p><strong>Período:</strong> {{ liquidacion.mes_liquidacion }}/{{ liquidacion.anho_liquidacion }}</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Concepto</th>
+        <th class="text-end">Acreditaciones (Gs)</th>
+        <th class="text-end">Descuentos (Gs)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td> Sueldo Base </td>
+        <td class="text-end">{{ sueldo_base|floatformat:0|intcomma }}</td>
+        <td></td>
+      </tr>
+
+      {% for desc, monto in ingresos %}
+      <tr>
+        <td>{{ desc }}</td>
+        <td class="text-end">{{ monto|floatformat:0|intcomma }}</td>
+        <td></td>
+      </tr>
+      {% endfor %}
+
+      {% for desc, monto in descuentos %}
+      <tr>
+        <td>{{ desc }}</td>
+        <td></td>
+        <td class="text-end">{{ monto|floatformat:0|intcomma }}</td>
+      </tr>
+      {% endfor %}
+
+      {% if not ingresos and not descuentos %}
+      <tr>
+        <td colspan="3" class="text-center">No se registraron ingresos ni descuentos.</td>
+      </tr>
+      {% endif %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th class="text-end">Total Neto</th>
+        <th colspan="2" class="text-end">{{ neto|floatformat:0|intcomma }} Gs</th>
+      </tr>
+      <tr>
+        <th colspan="3" class="text-center">({{ neto_letras }})</th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="footer">
+    <p><strong>Generado por:</strong> {{ usuario.username }}</p>
+    <p><strong>Fecha y hora:</strong> {{ timestamp|date:"d/m/Y H:i" }}</p>
+  </div>
+
+</body>
+</html>

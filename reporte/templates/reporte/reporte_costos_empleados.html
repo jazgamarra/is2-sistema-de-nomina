@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">👤 Costos por Empleado — {{ mes }}/{{ anho }}</h2>
+
+  <!-- Gráfico de barras -->
+  <div class="mb-5">
+    <canvas id="empleadosChart" height="150"></canvas>
+  </div>
+
+  <!-- Tabla de empleados y totales -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Monto Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in acumulado_empleados %}
+        <tr>
+          <td>{{ e.nombre }}</td>
+          <td>{{ e.total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No hay datos disponibles para este mes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {{ acumulado_empleados|json_script:"jsonEmpleados" }}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const empleadosParsed = JSON.parse(document.getElementById('jsonEmpleados').textContent);
+
+  const empleadosData = {
+    labels: empleadosParsed.map(e => e.nombre),
+    datasets: [{
+      label: 'Costo Total',
+      data: empleadosParsed.map(e => e.total),
+      backgroundColor: 'rgba(255, 99, 132, 0.6)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  new Chart(document.getElementById('empleadosChart'), {
+    type: 'bar',
+    data: empleadosData,
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

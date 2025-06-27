@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.encabezado-lila {
+  background-color: #9c4dcc !important;
+  color: white;
+}
+</style>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Costos Mensuales por Empleado</h2>
+
+  {% if data %}
+    {% for mes, info in data.items %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white encabezado-lila">
+          <strong>{{ mes }}</strong>     
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Empleado</th>
+                <th>Descuento Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for empleado in info.empleados %}
+                <tr>
+                  <td>{{ empleado.nombre }}</td>
+                  <td>Gs. {{ empleado.monto|default:0|floatformat:0 }}</td>
+                </tr>
+              {% endfor %}
+              <tr class="table-secondary">
+                <td><strong>Total del Mes</strong></td>
+                <td><strong>Gs. {{ info.total_mes|default:0|floatformat:0 }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center">No hay datos disponibles para mostrar.</p>
+  {% endif %}
+</div>
+{% endblock %}

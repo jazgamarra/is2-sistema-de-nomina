@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">📈 Distribución de Conceptos — {{ mes }}/{{ anho }}</h2>
+
+  <!-- Gráfico de conceptos -->
+  <div class="mb-5">
+    <canvas id="conceptosChart" height="150"></canvas>
+  </div>
+
+  <!-- Tabla opcional con los datos -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Monto Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in distribucion_conceptos %}
+        <tr>
+          <td>{{ c.id_concepto__descripcion }}</td>
+          <td>{{ c.total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No hay datos disponibles para este mes.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {{ distribucion_conceptos|json_script:"jsonConceptos" }}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const conceptosParsed = JSON.parse(document.getElementById('jsonConceptos').textContent);
+
+  const conceptosData = {
+    labels: conceptosParsed.map(c => c.id_concepto__descripcion),
+    datasets: [{
+      label: 'Monto total por concepto',
+      data: conceptosParsed.map(c => c.total),
+      backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  new Chart(document.getElementById('conceptosChart'), {
+    type: 'bar',
+    data: conceptosData,
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

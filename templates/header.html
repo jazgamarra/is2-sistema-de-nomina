@@ -1,16 +1,15 @@
 <style>
-    .bg-lila {
-    background-color: #9c4dcc;  /* Lila */
-}
+   .navbar {
+        background-color: #9C27B0;
+    }
+
 </style>
-   <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="/">Sistema de Nómina</a>
-            <div class="ml-auto">
-                {% if user.is_authenticated %}
-                    <span class="navbar-text mr-3">Hola, {{ user.username }}</span>
-                    <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm btn-logout">Cerrar sesión</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">Sistema de Nómina</a>
+    <div class="d-flex">
+      <span class="navbar-text" style="margin-right: 10px;">Hola, {{ user.username }}</span>
+      <a class="btn btn-outline-light" href="/usuarios/logout/">Cerrar sesión</a>
+    </div>
+  </div>
+</nav>
