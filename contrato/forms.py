@@ -8,8 +8,16 @@ class ContratoForm(forms.ModelForm):
         widgets = {
             'id_empleado': forms.Select(attrs={'class': 'form-control'}),
             'tipo_contrato': forms.TextInput(attrs={'class': 'form-control'}),
-            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_inicio': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'Seleccione la fecha de inicio'
+            }, format='%Y-%m-%d'),
+            'fecha_fin': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'Seleccione la fecha de fin'
+            }, format='%Y-%m-%d'),
             'salario': forms.NumberInput(attrs={'class': 'form-control'}),
             'salario_acordado': forms.NumberInput(attrs={'class': 'form-control'}),
             'tiene_beneficios': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -19,6 +27,9 @@ class ContratoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['salario_acordado'].required = False  # ✅ Confirmado opcional
+        self.fields['fecha_inicio'].input_formats = ['%Y-%m-%d']
+        self.fields['fecha_fin'].input_formats = ['%Y-%m-%d']
+        
 
     def clean(self):
         cleaned_data = super().clean()

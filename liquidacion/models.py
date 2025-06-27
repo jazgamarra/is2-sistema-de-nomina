@@ -47,9 +47,10 @@ class ConcEmpLiquidacion(models.Model):
         db_table = 'conc_emp_liquidacion'
 
 class DebCredMes(models.Model):
-    id = models.IntegerField(primary_key=True)
-    id_empleado = models.IntegerField(blank=True, null=True)
-    id_concepto = models.ForeignKey(Concepto, models.DO_NOTHING, db_column='id_concepto', blank=True, null=True)
+    id = models.AutoField(primary_key=True)
+
+    id_empleado = models.ForeignKey('empleado.Empleado', on_delete=models.CASCADE, db_column="id_empleado")
+    id_concepto = models.ForeignKey('Concepto', on_delete=models.CASCADE, db_column='id_concepto')
     mes = models.IntegerField()
     anho = models.IntegerField()
     monto = models.DecimalField(max_digits=15, decimal_places=5)
@@ -57,4 +58,5 @@ class DebCredMes(models.Model):
     class Meta:
         
         db_table = 'deb_cred_mes'
+        unique_together = ('id_empleado','id_concepto','mes','anho') 
 

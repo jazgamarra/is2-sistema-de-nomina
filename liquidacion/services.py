@@ -2,6 +2,8 @@ from decimal import Decimal
 from liquidacion.models import Liquidacion, ConceptoLiquidacion, Concepto, ConcEmpLiquidacion
 from empleado.models import Empleado
 from contrato.models import Contrato
+from .models import DebCredMes  # asegurate de tener el import
+
 from datetime import date   
 
 def calcular_sueldo_detallado(id_empleado, mes=None, anho=None):
@@ -18,30 +20,34 @@ def calcular_sueldo_detallado(id_empleado, mes=None, anho=None):
 
     salario_base = contrato.salario_acordado or contrato.salario
 
-    liquidaciones = Liquidacion.objects.filter(mes_liquidacion=mes, anho_liquidacion=anho) if mes and anho else Liquidacion.objects.all()
-    conceptos_qs = ConceptoLiquidacion.objects.filter(id_empleado=empleado)
-    conceptos_ids = conceptos_qs.values_list('id_concepto_liquidacion', flat=True)
-
-    liquidacion_ids = ConcEmpLiquidacion.objects.filter(
-        id_concepto_liquidacion__in=conceptos_ids,
-        id_liquidacion__in=liquidaciones
-    ).values_list('id_liquidacion', flat=True)
-
-    liquidacion = Liquidacion.objects.filter(id_liquidacion__in=liquidacion_ids).order_by('-fecha_liquidacion').first()
-
     conceptos_liq = []
+    nombres_conceptos_cargados = set()
+
+    # Intentar obtener la liquidación del mes/año
+    if mes and anho:
+        liquidacion = Liquidacion.objects.filter(mes_liquidacion=mes, anho_liquidacion=anho).order_by('-fecha_liquidacion').first()
+    else:
+        liquidacion = Liquidacion.objects.filter().order_by('-fecha_liquidacion').first()
+
     if liquidacion:
         conceptos_liq_ids = ConcEmpLiquidacion.objects.filter(
             id_liquidacion=liquidacion
         ).values_list('id_concepto_liquidacion', flat=True)
 
         conceptos_liq = ConceptoLiquidacion.objects.filter(
-            id_concepto_liquidacion__in=conceptos_liq_ids
+            id_concepto_liquidacion__in=conceptos_liq_ids,
+            id_empleado=empleado
+        ).select_related('id_concepto')
+    else:
+        # 🔁 Si aún no hay liquidación, usamos los conceptos desde DebCredMes
+        conceptos_liq = DebCredMes.objects.filter(
+            id_empleado=empleado.id_empleado,
+            mes=mes,
+            anho=anho
         ).select_related('id_concepto')
 
     bonificaciones = Decimal('0')
     descuentos = Decimal('0')
-    nombres_conceptos_cargados = set()
 
     for c in conceptos_liq:
         concepto = c.id_concepto
@@ -51,9 +57,9 @@ def calcular_sueldo_detallado(id_empleado, mes=None, anho=None):
         nombres_conceptos_cargados.add(concepto.descripcion.lower())
 
         if concepto.es_deb_cred:
-            bonificaciones += c.monto
+            bonificaciones += c.monto  # ✅ crédito = bonificación
         else:
-            descuentos += c.monto
+            descuentos += c.monto      # ✅ débito = descuento
 
     # BONO POR HIJOS (solo si no está cargado)
     if 'bonificacion_por_hijos' not in nombres_conceptos_cargados and empleado.hijos_menores_18 > 0:
