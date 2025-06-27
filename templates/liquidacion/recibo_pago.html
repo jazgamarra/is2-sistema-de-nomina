@@ -17,7 +17,7 @@
       </select>
     </div>
     <div class="col-md-2 d-flex align-items-end">
-      <button type="submit" class="btn btn-primary">Previsualizar</button>
+      <button type="submit" class="btn text-white mb-5" style="background-color:#9c27b0;">Previsualizar</button>
     </div>
   </form>
 
@@ -74,7 +74,7 @@
       </tfoot>
     </table>
 
-    <a href="{% url 'descargar_recibo_pdf' empleado.id_empleado selected_id %}" class="btn btn-success">Descargar PDF</a>
+    <a href="{% url 'descargar_recibo_pdf' empleado.id_empleado selected_id %}" class="btn text-white mb-5" style="background-color:#9c27b0;">Descargar PDF</a>
   </div>
 </div>
 {% endif %}

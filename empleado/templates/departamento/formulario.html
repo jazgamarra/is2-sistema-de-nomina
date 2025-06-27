@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ form.instance.pk|yesno:"Editar Departamento,Nuevo Departamento" }}</h3>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn" style="background-color: #9C27B0; color: white">Guardar</button>
+    <a href="{% url 'listar_departamentos' %}" class="btn" style="border: 2px solid #9C27B0; color: #9C27B0">Volver</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,23 +1,19 @@
-from django.shortcuts import render, get_object_or_404,redirect
-from empleado.models import Empleado
-from liquidacion.models import Concepto, ConceptoLiquidacion, DebCredMes, ConcEmpLiquidacion, Liquidacion
-from liquidacion.forms import ConceptoForm
-from django.contrib.auth.decorators import login_required
-import json
-from datetime import date
-from django.contrib import messages
-from .services import calcular_sueldo_detallado
-import json
-from django.http import JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
-from .models import DebCredMes  # Importá tu modelo corregido
-from django.db import transaction
-from num2words import num2words
-from .models import DebCredMes  # asegurate de tener el import
-from django.contrib.messages import get_messages
+from datetime import date, datetime
 from decimal import Decimal
-
+import json
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.messages import get_messages
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
+from num2words import num2words
+from empleado.models import Empleado
+from liquidacion.forms import ConceptoForm
+from liquidacion.models import ( Concepto, ConceptoLiquidacion, ConcEmpLiquidacion, Liquidacion, DebCredMes)
+from .services import calcular_sueldo_detallado
 
 # Vista para listar empleados
 def listar_empleados_reporte(request):
@@ -162,7 +158,7 @@ def generar_nomina(request):
                 id_concepto_liquidacion=cl
             )
 
-    messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
+        messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
 
     return render(request, "liquidacion/generar_nomina.html", {
         'nominas': nominas,
@@ -170,6 +166,64 @@ def generar_nomina(request):
         'mes': mes,
         'anho': anho
     })
+
+@login_required
+def generar_pdf_nomina_listado(request):
+    mes = request.GET.get("mes")
+    anho = request.GET.get("anho")
+    cedula = request.GET.get("cedula")
+
+    if not mes or not anho:
+        return HttpResponse("Mes y año requeridos", status=400)
+
+    mes = int(mes)
+    anho = int(anho)
+
+    empleados = Empleado.objects.filter(activo=True)
+    
+    # ✅ Filtrado opcional por cédula
+    if cedula:
+        empleados = empleados.filter(cedula=cedula)
+
+    # ✅ Filtrar por fecha de ingreso
+    fecha_limite = date(anho, mes, 1)
+    empleados = empleados.filter(fecha_ingreso__lte=fecha_limite)
+
+    nominas = []
+    total_salario = total_bonos = total_descuentos = total_total = 0
+
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+        total_salario += datos['salario_base']
+        total_bonos += datos['bonificaciones']
+        total_descuentos += datos['descuentos']
+        total_total += datos['sueldo_total']
+
+    html = render_to_string("liquidacion/pdf/nomina_listado.html", {
+        'nominas': nominas,
+        'mes': mes,
+        'anho': anho,
+        'fecha_hora': datetime.now(),
+        'usuario': request.user,
+        'total_salario': total_salario,
+        'total_bonos': total_bonos,
+        'total_descuentos': total_descuentos,
+        'total_total': total_total
+    })
+
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
+
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f"attachment; filename=nomina_{mes}_{anho}.pdf"
+    return response
 
 # Cargar conceptos por empleado 
 @login_required
@@ -237,61 +291,51 @@ import pdfkit
 from django.template.loader import render_to_string
 
 @login_required
-def generar_pdf_recibo(request, empleado_id, liquidacion_id):
-    empleado = get_object_or_404(Empleado, pk=empleado_id)
-    liquidacion = get_object_or_404(Liquidacion, pk=liquidacion_id)
+def generar_pdf_nomina_listado(request):
+    mes = int(request.GET.get("mes"))
+    anho = int(request.GET.get("anho"))
+    cedula = request.GET.get("cedula")
 
-    conceptos = ConcEmpLiquidacion.objects.filter(
-        id_liquidacion=liquidacion
-    ).select_related('id_concepto_liquidacion')
+    empleados = Empleado.objects.all()
+    if cedula:
+        empleados = empleados.filter(cedula=cedula)
 
-    ingresos, descuentos = [], []
-    total_ingresos = total_descuentos = Decimal('0')
-    sueldo_base_val = Decimal('0')
+    nominas = []
+    total_salario = total_bonos = total_descuentos = total_total = 0
 
-    for item in conceptos:
-        concepto_liq = item.id_concepto_liquidacion
-        concepto = concepto_liq.id_concepto if concepto_liq else None
-        monto = concepto_liq.monto if concepto_liq else 0
+    for emp in empleados:
+        datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
+        nominas.append({
+            'empleado': emp,
+            'salario': datos['salario_base'],
+            'bonos': datos['bonificaciones'],
+            'descuentos': datos['descuentos'],
+            'total': datos['sueldo_total'],
+        })
+        total_salario += datos['salario_base']
+        total_bonos += datos['bonificaciones']
+        total_descuentos += datos['descuentos']
+        total_total += datos['sueldo_total']
 
-        if concepto is None:
-            # Caso especial: sueldo base sin concepto
-            sueldo_base_val += monto
-            continue
-
-        descripcion = concepto.descripcion.lower()
-
-        if (
-            not concepto.es_deb_cred
-            or "ausencia" in descripcion
-            or "tardía" in descripcion
-            or "descuento" in descripcion
-        ):
-            descuentos.append((concepto.descripcion, abs(monto)))
-            total_descuentos += abs(monto)
-        else:
-            ingresos.append((concepto.descripcion, monto))
-            total_ingresos += monto
-
-    neto = sueldo_base_val + total_ingresos - total_descuentos
-    neto_letras = num2words(neto, lang='es').capitalize() + ' guaraníes'
-
-    html = render_to_string('liquidacion/recibo_pdf.html', {
-        'empleado': empleado,
-        'liquidacion': liquidacion,
-        'sueldo_base': sueldo_base_val,
-        'ingresos': ingresos,
-        'descuentos': descuentos,
-        'neto': neto,
-        'neto_letras': neto_letras,
+    html = render_to_string("liquidacion/pdf/nomina_listado.html", {
+        'nominas': nominas,
+        'mes': mes,
+        'anho': anho,
+        'fecha_hora': datetime.now(),
+        'usuario': request.user,
+        'total_salario': total_salario,
+        'total_bonos': total_bonos,
+        'total_descuentos': total_descuentos,
+        'total_total': total_total
     })
-    
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\wkhtmltopdf\bin\wkhtmltopdf.exe")
-    pdf = pdfkit.from_string(html, False, configuration=config)
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="recibo_pago.pdf"'
-    return response
 
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
+
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = f"attachment; filename=nomina_{mes}_{anho}.pdf"
+    return response
+    
 from django.http import HttpResponse
 import pdfkit
 from django.template.loader import render_to_string
@@ -371,7 +415,7 @@ def recibo_pago(request, empleado_id):
             monto = concepto_liq.monto if concepto_liq else 0
 
             if concepto is None:
-                    continue  # ⛔ evitar el error
+                    continue  
 
             descripcion = concepto.descripcion
 
