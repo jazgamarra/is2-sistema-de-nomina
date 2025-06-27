@@ -109,9 +109,43 @@ def generar_nomina(request):
     if mes and anho:
         mes = int(mes)
         anho = int(anho)
+
+        # Obtener o crear conceptos especiales
+        bono_cumple_concepto, _ = Concepto.objects.get_or_create(
+            descripcion='Bono de cumpleaños',
+            defaults={'es_deb_cred': False, 'es_fijo': False}
+        )
+        ips_concepto, _ = Concepto.objects.get_or_create(
+            descripcion='IPS',
+            defaults={'es_deb_cred': True, 'es_fijo': False}
+        )
+
         for emp in empleados:
+            # Verifica si ya existen los conceptos cargados automáticamente para este mes y año
+            conceptos_existentes = DebCredMes.objects.filter(id_empleado=emp, mes=mes, anho=anho)
+
+            if emp.fecha_nacimiento.month == mes and not conceptos_existentes.filter(id_concepto=bono_cumple_concepto).exists():
+                DebCredMes.objects.create(
+                    id_empleado=emp,
+                    id_concepto=bono_cumple_concepto,
+                    monto=300000,
+                    mes=mes,
+                    anho=anho
+                )
+
+            if emp.aplica_ips:
+                monto_ips = round(emp.salario_base * 0.09, 2) if hasattr(emp, 'salario_base') else 0
+                if not conceptos_existentes.filter(id_concepto=ips_concepto).exists() and monto_ips > 0:
+                    DebCredMes.objects.create(
+                        id_empleado=emp,
+                        id_concepto=ips_concepto,
+                        monto=monto_ips,
+                        mes=mes,
+                        anho=anho
+                    )
+
             datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
-            nominas.append({    
+            nominas.append({
                 'empleado': emp,
                 'salario': datos['salario_base'],
                 'bonos': datos['bonificaciones'],
@@ -119,44 +153,48 @@ def generar_nomina(request):
                 'total': datos['sueldo_total'],
             })
 
-    # Si el usuario envió POST para guardar nómina
     if request.method == "POST" and mes and anho:
+        mes = int(mes)
+        anho = int(anho)
+
         for emp in empleados:
             datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
 
-            liquidacion = Liquidacion.objects.create(
-                fecha_liquidacion=date.today(),
-                fecha_pago=date.today(),
-                mes_liquidacion=mes,
-                anho_liquidacion=anho
-            )
+            with transaction.atomic():
+                liquidacion = Liquidacion.objects.create(
+                    fecha_liquidacion=date.today(),
+                    fecha_pago=date.today(),
+                    mes_liquidacion=mes,
+                    anho_liquidacion=anho
+                )
 
-            concepto_base = ConceptoLiquidacion.objects.create(
-                id_empleado=emp,
-                id_concepto=None,
-                monto=datos['salario_base']
-            )
-            ConcEmpLiquidacion.objects.create(
-                id_liquidacion=liquidacion,
-                id_concepto_liquidacion=concepto_base
-            )
+                # Sueldo base sin concepto
+                concepto_base = ConceptoLiquidacion.objects.create(
+                    id_empleado=emp,
+                    id_concepto=None,
+                    monto=datos['salario_base']
+                )
+                ConcEmpLiquidacion.objects.create(
+                    id_liquidacion=liquidacion,
+                    id_concepto_liquidacion=concepto_base
+                )
 
-            conceptos_asociados = DebCredMes.objects.filter(
-            id_empleado=emp,
-            mes=mes,
-            anho=anho
-            )
-
-        for concepto in conceptos_asociados:
-            cl = ConceptoLiquidacion.objects.create(
-                id_empleado=emp,
-                id_concepto=concepto.id_concepto,
-                monto=concepto.monto
-            )
-            ConcEmpLiquidacion.objects.create(
-                id_liquidacion=liquidacion,
-                id_concepto_liquidacion=cl
-            )
+                # Agregar conceptos del mes (incluye los automáticos)
+                conceptos_asociados = DebCredMes.objects.filter(
+                    id_empleado=emp,
+                    mes=mes,
+                    anho=anho
+                )
+                for concepto in conceptos_asociados:
+                    cl = ConceptoLiquidacion.objects.create(
+                        id_empleado=emp,
+                        id_concepto=concepto.id_concepto,
+                        monto=concepto.monto
+                    )
+                    ConcEmpLiquidacion.objects.create(
+                        id_liquidacion=liquidacion,
+                        id_concepto_liquidacion=cl
+                    )
 
         messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
 
@@ -166,6 +204,7 @@ def generar_nomina(request):
         'mes': mes,
         'anho': anho
     })
+
 
 @login_required
 def generar_pdf_nomina_listado(request):
