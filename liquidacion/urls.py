@@ -19,5 +19,6 @@ urlpatterns = [
     # rutas para generar recibos de pago
     path('empleado/<int:empleado_id>/recibos/', views.recibo_pago, name='recibo_pago'),
     path('empleado/<int:empleado_id>/recibos/<int:liquidacion_id>/pdf/', views.descargar_recibo_pdf, name='descargar_recibo_pdf'),
+    path('nomina/pdf/', views.generar_pdf_nomina_listado, name='generar_pdf_nomina_listado'),
 
 ]

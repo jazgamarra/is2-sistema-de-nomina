@@ -98,12 +98,17 @@
 
         <!-- Botones finales -->
         <form method="post" class="d-flex justify-content-between">
-            {% csrf_token %}
-            <input type="hidden" name="mes" value="{{ mes }}">
-            <input type="hidden" name="anho" value="{{ anho }}">
-            <button type="submit" class="btn text-white mb-5" style="background-color:#9c27b0;"> Generar Nómina</button>
-            <button type="button" class="btn text-white mb-5" style="background-color:#9c27b0;"> Generar PDF</button>
-        </form>
+    {% csrf_token %}
+    <input type="hidden" name="mes" value="{{ mes }}">
+    <input type="hidden" name="anho" value="{{ anho }}">
+    <button type="submit" class="btn text-white mb-5" style="background-color:#9c27b0;"> Generar Nómina</button>
+
+    <a href="{% url 'generar_pdf_nomina_listado' %}?mes={{ mes }}&anho={{ anho }}"
+       class="btn text-white mb-5"
+       style="background-color:#9c27b0;">
+       Generar PDF
+    </a>
+</form>
     </div>
     {% endif %}
     <div class="text-center mt-4">
