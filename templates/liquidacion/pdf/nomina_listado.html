@@ -16,7 +16,7 @@
     <h2>Listado de Nómina</h2>
     <div class="meta">
         <p>Período: {{ mes }}/{{ anho }}</p>
-        <p>Generado por: {{ usuario.get_full_name }} ({{ usuario.username }})</p>
+        <p>Generado por: {{ usuario.get_full_name }} {{ usuario.username }} </p>
         <p>Fecha y hora: {{ fecha_hora|date:"d/m/Y H:i" }}</p>
     </div>
 
