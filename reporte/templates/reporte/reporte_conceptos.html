@@ -1,16 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container my-5">
-  <h2 class="text-center mb-4">📈 Distribución de Conceptos — {{ mes }}/{{ anho }}</h2>
+  <h2 class="text-center mb-4">📊 Dashboard de Conceptos — {{ mes }}/{{ anho }}</h2>
 
-  <!-- Gráfico de conceptos -->
-  <div class="mb-5">
-    <canvas id="conceptosChart" height="150"></canvas>
+  <!-- Filtro -->
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label class="form-label">Mes</label>
+      <select name="mes" class="form-select">
+        {% for numero, nombre in meses %}
+          <option value="{{ numero }}" {% if numero == mes %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Año</label>
+      <select name="anho" class="form-select">
+        {% for a in anhos %}
+          <option value="{{ a }}" {% if a == anho %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+  </form>
+
+  <!-- KPIs -->
+  <div class="row text-center mb-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">🧾 Total de Conceptos</h5>
+          <h3>{{ distribucion_conceptos|length }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">💰 Monto Total</h5>
+          <h3>{{ total_general|floatformat:2 }}</h3>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Tabla opcional con los datos -->
-  <div class="table-responsive">
+  <!-- 🟢 Tabla primero -->
+  <div class="table-responsive mt-4 mb-5">
     <table class="table table-bordered table-striped">
       <thead>
         <tr>
@@ -25,41 +64,73 @@
           <td>{{ c.total|floatformat:2 }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="2">No hay datos disponibles para este mes.</td></tr>
+        <tr><td colspan="2">No hay datos disponibles.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  {{ distribucion_conceptos|json_script:"jsonConceptos" }}
+  <!-- 🔵 Gráficos después -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <canvas id="barChart" height="300"></canvas>
+    </div>
+    <div class="col-md-6 mb-4">
+      <canvas id="pieChart" height="300"></canvas>
+    </div>
+  </div>
+
+  {% if distribucion_conceptos %}
+    {{ distribucion_conceptos|json_script:"jsonConceptos" }}
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const conceptosParsed = JSON.parse(document.getElementById('jsonConceptos').textContent);
+  const raw = document.getElementById('jsonConceptos');
+  if (raw) {
+    const conceptosData = JSON.parse(raw.textContent);
+    const labels = conceptosData.map(c => c.id_concepto__descripcion);
+    const valores = conceptosData.map(c => c.total);
 
-  const conceptosData = {
-    labels: conceptosParsed.map(c => c.id_concepto__descripcion),
-    datasets: [{
-      label: 'Monto total por concepto',
-      data: conceptosParsed.map(c => c.total),
-      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1
-    }]
-  };
-
-  new Chart(document.getElementById('conceptosChart'), {
-    type: 'bar',
-    data: conceptosData,
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true }
+    // Gráfico de barras
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Monto por Concepto',
+          data: valores,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
-    }
-  });
+    });
+
+    // Gráfico de torta
+    new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Distribución',
+          data: valores,
+          backgroundColor: labels.map((_, i) => `hsl(${i * 40}, 65%, 70%)`),
+        }]
+      },
+      options: {
+        responsive: true,
+      }
+    });
+  }
 </script>
 {% endblock %}

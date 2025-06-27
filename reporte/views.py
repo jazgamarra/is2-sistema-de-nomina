@@ -91,12 +91,11 @@ def dashboard_general(request):
     return render(request, 'reporte/dashboard_general.html', context)
 
 def reporte_conceptos(request):
-    from datetime import date
     hoy = date.today()
     mes = int(request.GET.get('mes', hoy.month))
     anho = int(request.GET.get('anho', hoy.year))
 
-    distribucion_conceptos = (
+    distribucion_conceptos_qs = (
         DebCredMes.objects
         .filter(mes=mes, anho=anho)
         .values('id_concepto__descripcion')
@@ -104,11 +103,22 @@ def reporte_conceptos(request):
         .order_by('-total')
     )
 
+    distribucion_conceptos = list(distribucion_conceptos_qs)
+    total_general = sum([x['total'] for x in distribucion_conceptos]) if distribucion_conceptos else 0
+
     return render(request, 'reporte/reporte_conceptos.html', {
         'mes': mes,
         'anho': anho,
-        'distribucion_conceptos': list(distribucion_conceptos)
+        'distribucion_conceptos': distribucion_conceptos,
+        'total_general': total_general,
+        'anhos': range(hoy.year, hoy.year - 6, -1),  # últimos 5 años
+        'meses': [
+            (1, "Enero"), (2, "Febrero"), (3, "Marzo"), (4, "Abril"),
+            (5, "Mayo"), (6, "Junio"), (7, "Julio"), (8, "Agosto"),
+            (9, "Septiembre"), (10, "Octubre"), (11, "Noviembre"), (12, "Diciembre")
+        ]
     })
+
 
 def reporte_costo_empleado(request):
     hoy = date.today()
