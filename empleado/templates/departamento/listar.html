@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Departamentos</h3>
+  <a href="{% url 'crear_departamento' %}" class="btn mb-3" style="background-color: #9C27B0; color: white">+ Nuevo Departamento</a>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert alert-success">{{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in departamentos %}
+      <tr>
+        <td>{{ d.id_departamento }}</td>
+        <td>{{ d.departamento }}</td>
+        <td>
+          <a href="{% url 'editar_departamento' d.id_departamento %}" class="btn btn-sm btn-warning">Editar</a>
+          <a href="{% url 'eliminar_departamento' d.id_departamento %}" class="btn btn-sm btn-danger">Eliminar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+        <a href="/" class="btn-volver-menu">Volver al Menú Principal</a>           
+</div>
+
+<style>
+      .btn-volver-menu {
+                     background-color: white;
+                    color: #9c4dcc;  /* Lila */
+                    border: 2px solid #9c4dcc;  /* Borde lila */
+                    border-radius: 50px;  /* Redondeado */
+                    margin-right: 10px;  /* Espacio a la izquierda */
+                    font-size: 16px;  /* Tamaño de fuente */
+                    padding: 4px 20px;  /* Espaciado interno */
+                }
+                
+                .btn-volver-menu:hover {
+                    background-color: #9c4dcc; /* Fondo lila al pasar el mouse */
+                    color: white; /* Texto blanco */
+                }
+</style>
+{% endblock %}

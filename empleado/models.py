@@ -12,7 +12,7 @@ class Cargo(models.Model):
 
 
 class Departamento(models.Model):
-    id_departamento = models.IntegerField(primary_key=True)
+    id_departamento = models.AutoField(primary_key=True)
     departamento = models.CharField()
 
     def __str__(self):

@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from empleado.models import Empleado  
-from empleado.forms import EmpleadoForm
+from empleado.models import Empleado, Departamento
+from empleado.forms import EmpleadoForm, DepartamentoForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 
 # Vista para listar empleados
 @login_required
@@ -50,3 +52,38 @@ def eliminar_empleado(request, pk):
         empleado.save()
         return redirect('listar_empleados')
     return render(request, 'empleado/eliminar_empleado.html', {'empleado': empleado})
+
+def listar_departamentos(request):
+    departamentos = Departamento.objects.all()
+    return render(request, 'departamento/listar.html', {'departamentos': departamentos})
+
+def crear_departamento(request):
+    if request.method == 'POST':
+        form = DepartamentoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Departamento creado exitosamente.')
+            return redirect('listar_departamentos')
+    else:
+        form = DepartamentoForm()
+    return render(request, 'departamento/formulario.html', {'form': form})
+
+def editar_departamento(request, pk):
+    departamento = get_object_or_404(Departamento, pk=pk)
+    if request.method == 'POST':
+        form = DepartamentoForm(request.POST, instance=departamento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Departamento actualizado.')
+            return redirect('listar_departamentos')
+    else:
+        form = DepartamentoForm(instance=departamento)
+    return render(request, 'departamento/formulario.html', {'form': form})
+
+def eliminar_departamento(request, pk):
+    departamento = get_object_or_404(Departamento, pk=pk)
+    if request.method == 'POST':
+        departamento.delete()
+        messages.success(request, 'Departamento eliminado.')
+        return redirect('listar_departamentos')
+    return render(request, 'departamento/confirmar_eliminar.html', {'departamento': departamento})

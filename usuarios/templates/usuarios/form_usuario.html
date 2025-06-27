@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ form.instance.pk|yesno:"Editar Usuario,Nuevo Usuario" }}</h3>
+
+  <form method="post">
+  {% csrf_token %}
+  <div class="mb-3"> 
+    {{ form.username.label_tag }} <br> {{ form.username }}
+  </div>
+  <div class="mb-3">
+    {{ form.first_name.label_tag }} <br> {{ form.first_name }}
+  </div>
+  <div class="mb-3">
+    {{ form.last_name.label_tag }} <br> {{ form.last_name }}
+  </div>
+  <div class="mb-3">
+    {{ form.email.label_tag }} <br> {{ form.email }}
+  </div>
+  <div class="mb-3">
+    {{ form.password.label_tag }} <br> {{ form.password }}
+  </div>
+  <div class="form-check mb-2">
+    {{ form.is_staff }} {{ form.is_staff.label_tag }}
+  </div>
+  <div class="form-check mb-3">
+    {{ form.is_active }} {{ form.is_active.label_tag }}
+  </div>
+
+  <button type="submit" class="btn" style="background-color: #9C27B0; color: white">Guardar</button>
+  <a href="{% url 'listar_usuarios' %}" class="btn" style="border: 2px solid #9C27B0; color: #9C27B0">Volver</a>
+</form>
+
+</div>
+
+<style>
+  .btn-volver-menu {
+    background-color: white;
+    color: #9c4dcc;
+    border: 2px solid #9c4dcc;
+    border-radius: 50px;
+    font-size: 16px;
+    padding: 4px 20px;
+  }
+  .btn-volver-menu:hover {
+    background-color: #9c4dcc;
+    color: white;
+  }
+</style>
+{% endblock %}

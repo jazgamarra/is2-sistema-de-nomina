@@ -2,6 +2,8 @@ from django import forms
 from empleado.models import Empleado
 import re
 from datetime import date
+from .models import Departamento
+
 
 class EmpleadoForm(forms.ModelForm):
     class Meta:
@@ -78,3 +80,13 @@ class EmpleadoForm(forms.ModelForm):
         if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
             raise forms.ValidationError("Ingrese un correo válido.")
         return email
+
+
+class DepartamentoForm(forms.ModelForm):
+    class Meta:
+        model = Departamento
+        fields = ['id_departamento', 'departamento']
+        widgets = {
+            'departamento': forms.TextInput(attrs={'class': 'form-control'}),
+            'id_departamento': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
