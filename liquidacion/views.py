@@ -10,8 +10,13 @@ from .services import calcular_sueldo_detallado
 import json
 from django.http import JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
+from .models import DebCredMes  # Importá tu modelo corregido
 from django.db import transaction
 from num2words import num2words
+from .models import DebCredMes  # asegurate de tener el import
+from django.contrib.messages import get_messages
+from decimal import Decimal
+
 from django.utils.timezone import now
 
 # Vista para listar empleados
@@ -63,6 +68,8 @@ def crear_concepto(request):
 
 @login_required
 def editar_concepto(request, pk):
+    list(get_messages(request))  # Limpia los mensajes previos
+
     concepto = get_object_or_404(Concepto, pk=pk)
     if request.method == 'POST':
         form = ConceptoForm(request.POST, instance=concepto)
@@ -100,15 +107,15 @@ def generar_nomina(request):
         empleados = empleados.filter(cedula=cedula)
 
     nominas = []
-    mes = request.GET.get("mes")
-    anho = request.GET.get("anho")
+    mes = request.GET.get("mes") or request.POST.get("mes")
+    anho = request.GET.get("anho") or request.POST.get("anho")
 
     if mes and anho:
         mes = int(mes)
         anho = int(anho)
         for emp in empleados:
             datos = calcular_sueldo_detallado(emp.id_empleado, mes=mes, anho=anho)
-            nominas.append({
+            nominas.append({    
                 'empleado': emp,
                 'salario': datos['salario_base'],
                 'bonos': datos['bonificaciones'],
@@ -138,14 +145,24 @@ def generar_nomina(request):
                 id_concepto_liquidacion=concepto_base
             )
 
-            conceptos_asociados = ConceptoLiquidacion.objects.filter(id_empleado=emp)
-            for concepto in conceptos_asociados:
-                ConcEmpLiquidacion.objects.create(
-                    id_liquidacion=liquidacion,
-                    id_concepto_liquidacion=concepto
-                )
+            conceptos_asociados = DebCredMes.objects.filter(
+            id_empleado=emp,
+            mes=mes,
+            anho=anho
+            )
 
-        messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
+        for concepto in conceptos_asociados:
+            cl = ConceptoLiquidacion.objects.create(
+                id_empleado=emp,
+                id_concepto=concepto.id_concepto,
+                monto=concepto.monto
+            )
+            ConcEmpLiquidacion.objects.create(
+                id_liquidacion=liquidacion,
+                id_concepto_liquidacion=cl
+            )
+
+    messages.success(request, f"Nómina generada correctamente para {mes}/{anho}.")
 
     return render(request, "liquidacion/generar_nomina.html", {
         'nominas': nominas,
@@ -171,35 +188,30 @@ def editar_conceptos_empleado(request, empleado_id):
             return redirect(request.path)
 
         with transaction.atomic():
-            ids_guardados = []
-
             for item in data:
                 id_concepto = item.get('id_concepto')
                 monto = item.get('monto')
-                mes = item.get('mes') or None
-                anho = item.get('anho') or None
+                mes = item.get('mes')
+                anho = item.get('anho')
+
+                if not all([id_concepto, monto, mes, anho]):
+                    continue  # saltea registros incompletos
 
                 concepto = get_object_or_404(Concepto, pk=id_concepto)
 
-                cl, created = ConceptoLiquidacion.objects.update_or_create(
+                DebCredMes.objects.update_or_create(
                     id_empleado=empleado,
                     id_concepto=concepto,
+                    mes=mes,
+                    anho=anho,
                     defaults={'monto': monto}
                 )
-                ids_guardados.append(concepto.id_concepto)
-
-                if concepto.es_deb_cred and concepto.permite_cuotas and mes and anho:
-                    DebCredMes.objects.update_or_create(
-                        id_empleado=empleado.id_empleado,
-                        id_concepto=concepto,
-                        defaults={"mes": mes, "anho": anho}
-                    )
 
             messages.success(request, "Conceptos guardados correctamente.")
             return redirect(request.path)
 
-    # GET
-    conceptos_actuales_qs = ConceptoLiquidacion.objects.filter(id_empleado=empleado)
+    # GET - carga actual de conceptos desde DebCredMes
+    conceptos_actuales_qs = DebCredMes.objects.filter(id_empleado=empleado)
     conceptos_actuales = []
 
     for cl in conceptos_actuales_qs:
@@ -209,74 +221,15 @@ def editar_conceptos_empleado(request, empleado_id):
         registro = {
             "id_concepto": concepto.id_concepto,
             "monto": float(cl.monto),
-            "mes": None,
-            "anho": None,
+            "mes": cl.mes,
+            "anho": cl.anho,
         }
-
-        if concepto.es_deb_cred and concepto.permite_cuotas:
-            cuotas = DebCredMes.objects.filter(id_empleado=empleado.id_empleado, id_concepto=concepto).first()
-            if cuotas:
-                registro["mes"] = cuotas.mes
-                registro["anho"] = cuotas.anho
-
         conceptos_actuales.append(registro)
 
     return render(request, 'liquidacion/editar_conceptos.html', {
         'empleado': empleado,
         'conceptos': conceptos,
         'conceptos_actuales_json': json.dumps(conceptos_actuales, cls=DjangoJSONEncoder)
-    })
-
-@login_required
-def recibo_pago(request, empleado_id):
-    empleado = get_object_or_404(Empleado, pk=empleado_id)
-    liquidaciones = Liquidacion.objects.filter(
-        concempliquidacion__id_concepto_liquidacion__id_empleado=empleado
-    ).distinct()
-
-    selected_id = request.GET.get('liquidacion_id')
-    if selected_id:
-        liquidacion = get_object_or_404(Liquidacion, pk=selected_id)
-        conceptos = ConcEmpLiquidacion.objects.filter(id_liquidacion=liquidacion).select_related('id_concepto_liquidacion')
-
-        ingresos, descuentos = [], []
-        total_ingresos = total_descuentos = 0
-
-        for item in conceptos:
-            concepto = item.id_concepto_liquidacion.id_concepto
-            monto = item.id_concepto_liquidacion.monto
-
-            if concepto:
-                if concepto.es_deb_cred:
-                    descuentos.append((concepto.descripcion, monto))
-                    total_descuentos += monto
-                else:
-                    ingresos.append((concepto.descripcion, monto))
-                    total_ingresos += monto
-
-        sueldo_base_val = next((item.id_concepto_liquidacion.monto for item in conceptos
-                                if item.id_concepto_liquidacion.id_concepto is None), 0)
-
-        neto = sueldo_base_val + total_ingresos - total_descuentos
-        neto_letras = num2words(neto, lang='es').capitalize() + ' guaraníes'
-
-        return render(request, 'liquidacion/recibo_pago.html', {
-            'empleado': empleado,
-            'liquidaciones': liquidaciones,
-            'conceptos': conceptos,
-            'sueldo_base': sueldo_base_val,
-            'ingresos': ingresos,
-            'descuentos': descuentos,
-            'total_ingresos': total_ingresos,
-            'total_descuentos': total_descuentos,
-            'neto': neto,
-            'neto_letras': neto_letras,
-            'selected_id': int(selected_id),
-        })
-
-    return render(request, 'liquidacion/recibo_pago.html', {
-        'empleado': empleado,
-        'liquidaciones': liquidaciones
     })
 
 from django.http import HttpResponse
@@ -288,23 +241,38 @@ def generar_pdf_recibo(request, empleado_id, liquidacion_id):
     empleado = get_object_or_404(Empleado, pk=empleado_id)
     liquidacion = get_object_or_404(Liquidacion, pk=liquidacion_id)
 
-    conceptos = ConcEmpLiquidacion.objects.filter(id_liquidacion=liquidacion).select_related('id_concepto_liquidacion')
+    conceptos = ConcEmpLiquidacion.objects.filter(
+        id_liquidacion=liquidacion
+    ).select_related('id_concepto_liquidacion')
 
     ingresos, descuentos = [], []
-    total_ingresos = total_descuentos = 0
+    total_ingresos = total_descuentos = Decimal('0')
+    sueldo_base_val = Decimal('0')
 
     for item in conceptos:
-        concepto = item.id_concepto_liquidacion.id_concepto
-        monto = item.id_concepto_liquidacion.monto
-        if concepto and concepto.tipo == 'BONIFICACION':
+        concepto_liq = item.id_concepto_liquidacion
+        concepto = concepto_liq.id_concepto if concepto_liq else None
+        monto = concepto_liq.monto if concepto_liq else 0
+
+        if concepto is None:
+            # Caso especial: sueldo base sin concepto
+            sueldo_base_val += monto
+            continue
+
+        descripcion = concepto.descripcion.lower()
+
+        if (
+            not concepto.es_deb_cred
+            or "ausencia" in descripcion
+            or "tardía" in descripcion
+            or "descuento" in descripcion
+        ):
+            descuentos.append((concepto.descripcion, abs(monto)))
+            total_descuentos += abs(monto)
+        else:
             ingresos.append((concepto.descripcion, monto))
             total_ingresos += monto
-        elif concepto and concepto.tipo == 'DESCUENTO':
-            descuentos.append((concepto.descripcion, monto))
-            total_descuentos += monto
 
-    sueldo_base_val = next((item.id_concepto_liquidacion.monto for item in conceptos
-                            if item.id_concepto_liquidacion.id_concepto is None), 0)
     neto = sueldo_base_val + total_ingresos - total_descuentos
     neto_letras = num2words(neto, lang='es').capitalize() + ' guaraníes'
 
@@ -317,8 +285,9 @@ def generar_pdf_recibo(request, empleado_id, liquidacion_id):
         'neto': neto,
         'neto_letras': neto_letras,
     })
-
-    pdf = pdfkit.from_string(html, False)
+    
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="recibo_pago.pdf"'
     return response
@@ -366,65 +335,73 @@ def descargar_recibo_pdf(request, empleado_id, liquidacion_id):
         'usuario': request.user,
         'timestamp': now()
     })
-
-    pdf = pdfkit.from_string(html, False)
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="recibo_{empleado.cedula}_{liquidacion.mes_liquidacion}_{liquidacion.anho_liquidacion}.pdf"'
     return response
 
 @login_required
 def recibo_pago(request, empleado_id):
+    from datetime import datetime
+
     empleado = get_object_or_404(Empleado, pk=empleado_id)
     liquidaciones = Liquidacion.objects.filter(
         concempliquidacion__id_concepto_liquidacion__id_empleado=empleado
     ).distinct()
 
-    if request.method == 'GET':
-        selected_id = request.GET.get('liquidacion_id')
-        if selected_id:
-            liquidacion = get_object_or_404(Liquidacion, pk=selected_id)
-            conceptos = ConcEmpLiquidacion.objects.filter(
-                id_liquidacion=liquidacion
-            ).select_related('id_concepto_liquidacion')
+    selected_id = request.GET.get('liquidacion_id')
+    try:
+        selected_id_int = int(selected_id)
+    except (TypeError, ValueError):
+        selected_id_int = None
 
-            ingresos = []
-            descuentos = []
-            total_ingresos = 0
-            total_descuentos = 0
+    if selected_id_int:
+        liquidacion = get_object_or_404(Liquidacion, pk=selected_id_int)
+        conceptos = ConcEmpLiquidacion.objects.filter(
+            id_liquidacion=liquidacion
+        ).select_related('id_concepto_liquidacion')
 
-            for item in conceptos:
-                concepto = item.id_concepto_liquidacion.id_concepto
-                monto = item.id_concepto_liquidacion.monto
+        ingresos = []
+        descuentos = []
 
-                if concepto:
-                    if concepto.es_deb_cred:
-                        descuentos.append((concepto.descripcion, monto))
-                        total_descuentos += monto
-                    else:
-                        ingresos.append((concepto.descripcion, monto))
-                        total_ingresos += monto
+        for item in conceptos:
+            concepto_liq = item.id_concepto_liquidacion
+            concepto = concepto_liq.id_concepto if concepto_liq else None
+            monto = concepto_liq.monto if concepto_liq else 0
 
-            sueldo_base = conceptos.filter(id_concepto_liquidacion__id_concepto=None).first()
-            sueldo_base_val = sueldo_base.id_concepto_liquidacion.monto if sueldo_base else 0
+            if concepto is None:
+                    continue  # ⛔ evitar el error
 
-            neto = sueldo_base_val + total_ingresos - total_descuentos
-            neto_letras = num2words(neto, lang='es').capitalize() + ' guaraníes'
+            descripcion = concepto.descripcion
 
-            return render(request, 'liquidacion/recibo_pago.html', {
-                'empleado': empleado,
-                'liquidaciones': liquidaciones,
-                'conceptos': conceptos,
-                'sueldo_base': sueldo_base_val,
-                'ingresos': ingresos,
-                'descuentos': descuentos,
-                'total_ingresos': total_ingresos,
-                'total_descuentos': total_descuentos,
-                'neto': neto,
-                'neto_letras': neto_letras,
-                'selected_id': selected_id
-            })
+            if concepto.es_deb_cred:
+                ingresos.append((descripcion, monto))
+            else:
+                descuentos.append((descripcion, abs(monto)))
+
+        # Obtener salario_base, mes y año para cálculo exacto
+        mes = liquidacion.mes_liquidacion
+        anho = liquidacion.anho_liquidacion
+
+        detalle = calcular_sueldo_detallado(empleado_id, mes, anho)
+
+        return render(request, 'liquidacion/recibo_pago.html', {
+            'empleado': empleado,
+            'liquidaciones': liquidaciones,
+            'conceptos': conceptos,
+            'sueldo_base': detalle['salario_base'],
+            'ingresos': ingresos,
+            'descuentos': descuentos,
+            'total_ingresos': detalle['bonificaciones'],
+            'total_descuentos': detalle['descuentos'],
+            'neto': detalle['sueldo_total'],
+            'neto_letras': num2words(detalle['sueldo_total'], lang='es').capitalize() + ' guaraníes',
+            'selected_id': selected_id_int
+        })
 
     return render(request, 'liquidacion/recibo_pago.html', {
         'empleado': empleado,
-        'liquidaciones': liquidaciones
+        'liquidaciones': liquidaciones,
+        'selected_id': None
     })

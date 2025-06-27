@@ -43,8 +43,8 @@
         <option selected disabled>Seleccione...</option>
         {% for concepto in conceptos %}
           <option value="{{ concepto.id_concepto }}"
-                  data-es-deb-cred="{{ concepto.es_deb_cred|yesno:'1,0' }}"
-                  data-permite-cuotas="{{ concepto.permite_cuotas|yesno:'1,0' }}"
+                  data-es-deb-cred="{% if concepto.es_deb_cred %}1{% else %}0{% endif %}"
+                  data-permite-cuotas="{% if concepto.permite_cuotas %}1{% else %}0{% endif %}"
                   data-descripcion="{{ concepto.descripcion }}">
             {{ concepto.descripcion }}
           </option>
@@ -57,12 +57,12 @@
       <input type="number" step="0.01" class="form-control" id="monto" required>
     </div>
 
-    <div id="cuotas-opciones" class="col-md-5 d-none">
-      <label class="form-label">Mes y Año de inicio</label>
-      <div class="d-flex gap-2">
-        <input type="number" class="form-control" id="mes" placeholder="Mes (1-12)">
-        <input type="number" class="form-control" id="anho" placeholder="Año (ej: 2025)">
-      </div>
+    <div class="col-md-5">
+        <label class="form-label">Mes y Año de inicio</label>
+        <div class="d-flex gap-2">
+          <input type="number" class="form-control" id="mes" placeholder="Mes (1-12)">
+          <input type="number" class="form-control" id="anho" placeholder="Año (ej: 2025)">
+        </div>
     </div>
 
     <div class="col-12">
@@ -105,12 +105,15 @@
   let conceptosAgregados = [];
   let editIndex = null;
 
-  conceptosSelect.addEventListener('change', () => {
+  // 🔁 AGREGADO: función reutilizable para mostrar/ocultar campos de mes y año
+  function actualizarVisibilidadCuotas() {
     const selected = conceptosSelect.options[conceptosSelect.selectedIndex];
     const esDebCred = selected.dataset.esDebCred === "1";
     const permiteCuotas = selected.dataset.permiteCuotas === "1";
-    cuotasOpciones.classList.toggle('d-none', !(esDebCred && permiteCuotas));
-  });
+  }
+
+  // 🔁 CAMBIO: usar la función en lugar de repetir código
+  conceptosSelect.addEventListener('change', actualizarVisibilidadCuotas);
 
   document.getElementById('form-concepto').addEventListener('submit', e => {
     e.preventDefault();
@@ -121,12 +124,10 @@
     const esDebCred = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.esDebCred === "1";
     const permiteCuotas = conceptosSelect.options[conceptosSelect.selectedIndex].dataset.permiteCuotas === "1";
 
-    let mes = "", anho = "";
-    if (esDebCred && permiteCuotas) {
-      mes = parseInt(mesInput.value);
-      anho = parseInt(anhoInput.value);
-      if (!mes || !anho) return alert("Debe ingresar mes y año.");
-    }
+    const mes = parseInt(mesInput.value);
+    const anho = parseInt(anhoInput.value);
+
+    if (!mes || !anho) return alert("Debe ingresar mes y año.");
 
     const nuevoConcepto = { id_concepto: conceptoId, monto, mes, anho };
 
@@ -143,7 +144,6 @@
 
     conceptosJSON.value = JSON.stringify(conceptosAgregados);
     document.getElementById('form-concepto').reset();
-    cuotasOpciones.classList.add('d-none');
   });
 
   function filaHTML(texto, monto, mes, anho, index) {
@@ -154,7 +154,7 @@
       <td>${anho || "-"}</td>
       <td>
         <button type="button" class="btn btn-sm btn-warning me-1" onclick="editarFila(${index})">Editar</button>
-        <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila(${index}, this)">Eliminar</button>
+        <button type="button" class="btn btn-sm btn-danger" data-index="${index}" onclick="eliminarFila(this)">Eliminar</button>
       </td>`;
   }
 
@@ -165,19 +165,26 @@
     mesInput.value = concepto.mes || "";
     anhoInput.value = concepto.anho || "";
 
-    const selected = conceptosSelect.options[conceptosSelect.selectedIndex];
-    const esDebCred = selected.dataset.esDebCred === "1";
-    const permiteCuotas = selected.dataset.permiteCuotas === "1";
-    cuotasOpciones.classList.toggle('d-none', !(esDebCred && permiteCuotas));
+    actualizarVisibilidadCuotas(); // 🔁 AGREGADO: usar función común
 
     editIndex = index;
   }
 
-  function eliminarFila(index, btn) {
+  function eliminarFila(btn) {
+    const index = parseInt(btn.getAttribute('data-index'));
     conceptosAgregados.splice(index, 1);
     btn.closest('tr').remove();
-    conceptosJSON.value = JSON.stringify(conceptosAgregados);
-  }
+
+    // 🔁 Reindexar botones después de eliminar
+    Array.from(tabla.rows).forEach((row, i) => {
+      const btnEliminar = row.querySelector('.btn-danger');
+      if (btnEliminar) btnEliminar.setAttribute('data-index', i);
+      const btnEditar = row.querySelector('.btn-warning');
+      if (btnEditar) btnEditar.setAttribute('onclick', `editarFila(${i})`);
+  });
+
+  conceptosJSON.value = JSON.stringify(conceptosAgregados);
+}
 
   guardarForm.addEventListener('submit', e => {
     conceptosJSON.value = JSON.stringify(conceptosAgregados);
@@ -187,8 +194,8 @@
     }
   });
 
-  // Precargar conceptos desde el contexto
-  const precargados = {{ conceptos_actuales_json|safe }};
+  // Precargar conceptos desde el contexto (sin cambio)
+  const precargados = JSON.parse('{{ conceptos_actuales_json|escapejs }}');
 
   for (let i = 0; i < precargados.length; i++) {
     const concepto = precargados[i];
@@ -201,6 +208,19 @@
   }
 
   conceptosJSON.value = JSON.stringify(conceptosAgregados);
+
+  // 🔁 AGREGADO: mostrar campos si el concepto precargado lo requiere
+  if (conceptosAgregados.length > 0) {
+    conceptosSelect.value = conceptosAgregados[conceptosAgregados.length - 1].id_concepto;
+    actualizarVisibilidadCuotas();
+  }
+
+  // 🔁 OPCIONAL: por si el DOM ya cargó y hay un valor seleccionado manualmente
+  window.addEventListener('DOMContentLoaded', () => {
+    if (conceptosSelect.value) {
+      actualizarVisibilidadCuotas();
+    }
+  });
 </script>
 
 </body>
