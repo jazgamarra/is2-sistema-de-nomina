@@ -15,6 +15,8 @@ from django.db import transaction
 from num2words import num2words
 from .models import DebCredMes  # asegurate de tener el import
 from django.contrib.messages import get_messages
+from decimal import Decimal
+
 from django.utils.timezone import now
 
 # Vista para listar empleados
@@ -239,23 +241,38 @@ def generar_pdf_recibo(request, empleado_id, liquidacion_id):
     empleado = get_object_or_404(Empleado, pk=empleado_id)
     liquidacion = get_object_or_404(Liquidacion, pk=liquidacion_id)
 
-    conceptos = ConcEmpLiquidacion.objects.filter(id_liquidacion=liquidacion).select_related('id_concepto_liquidacion')
+    conceptos = ConcEmpLiquidacion.objects.filter(
+        id_liquidacion=liquidacion
+    ).select_related('id_concepto_liquidacion')
 
     ingresos, descuentos = [], []
-    total_ingresos = total_descuentos = 0
+    total_ingresos = total_descuentos = Decimal('0')
+    sueldo_base_val = Decimal('0')
 
     for item in conceptos:
-        concepto = item.id_concepto_liquidacion.id_concepto
-        monto = item.id_concepto_liquidacion.monto
-        if concepto and concepto.tipo == 'BONIFICACION':
+        concepto_liq = item.id_concepto_liquidacion
+        concepto = concepto_liq.id_concepto if concepto_liq else None
+        monto = concepto_liq.monto if concepto_liq else 0
+
+        if concepto is None:
+            # Caso especial: sueldo base sin concepto
+            sueldo_base_val += monto
+            continue
+
+        descripcion = concepto.descripcion.lower()
+
+        if (
+            not concepto.es_deb_cred
+            or "ausencia" in descripcion
+            or "tardía" in descripcion
+            or "descuento" in descripcion
+        ):
+            descuentos.append((concepto.descripcion, abs(monto)))
+            total_descuentos += abs(monto)
+        else:
             ingresos.append((concepto.descripcion, monto))
             total_ingresos += monto
-        elif concepto and concepto.tipo == 'DESCUENTO':
-            descuentos.append((concepto.descripcion, monto))
-            total_descuentos += monto
 
-    sueldo_base_val = next((item.id_concepto_liquidacion.monto for item in conceptos
-                            if item.id_concepto_liquidacion.id_concepto is None), 0)
     neto = sueldo_base_val + total_ingresos - total_descuentos
     neto_letras = num2words(neto, lang='es').capitalize() + ' guaraníes'
 
@@ -268,8 +285,9 @@ def generar_pdf_recibo(request, empleado_id, liquidacion_id):
         'neto': neto,
         'neto_letras': neto_letras,
     })
-
-    pdf = pdfkit.from_string(html, False)
+    
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="recibo_pago.pdf"'
     return response
@@ -317,8 +335,8 @@ def descargar_recibo_pdf(request, empleado_id, liquidacion_id):
         'usuario': request.user,
         'timestamp': now()
     })
-
-    pdf = pdfkit.from_string(html, False)
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    pdf = pdfkit.from_string(html, False, configuration=config)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="recibo_{empleado.cedula}_{liquidacion.mes_liquidacion}_{liquidacion.anho_liquidacion}.pdf"'
     return response
